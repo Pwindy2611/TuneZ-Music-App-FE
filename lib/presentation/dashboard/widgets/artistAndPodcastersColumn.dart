@@ -1,51 +1,96 @@
-// ignore_for_file: file_names, camel_case_types, non_constant_identifier_names
-
 import 'package:flutter/material.dart';
+import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 
-class artistAndPodcastersColumn extends StatelessWidget{
+class ArtistAndPodcastersColumn extends StatefulWidget {
   final String image;
   final String name;
-  final int border_radius;
-  final List<Map<String, dynamic>> artistAndPodcastersItems;
-  const artistAndPodcastersColumn({super.key, required this.name, required this.image, required this.border_radius, required this.artistAndPodcastersItems});
+  final String artist;
+  final int borderRadius;
+
+  const ArtistAndPodcastersColumn({
+    super.key,
+    required this.name,
+    required this.image,
+    required this.borderRadius,
+    required this.artist,
+  });
+
+  @override
+  _ArtistAndPodcastersColumnState createState() => _ArtistAndPodcastersColumnState();
+}
+
+class _ArtistAndPodcastersColumnState extends State<ArtistAndPodcastersColumn> {
+  bool isTapped = false;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) => artistsScreen(name: name, image: image, moreLikeThisItems: artistAndPodcastersItems)));
-      },
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 5, right: 5),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(double.parse(border_radius.toString())),
-              child: Image.network(image, height: 120, width: 120),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => isTapped = true),
+      onTapUp: (_) => setState(() => isTapped = false),
+      onTapCancel: () => setState(() => isTapped = false),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedScale(
+            scale: isTapped ? 0.95 : 1.0, // Khi nhấn vào, ảnh sẽ to ra 1.1 lần
+            duration: const Duration(milliseconds: 200),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 5, right: 5),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(widget.borderRadius.toDouble()),
+                    child: Image.network(widget.image, height: 140, width: 140),
+                  ),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    width: 140,
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.name,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                            textAlign: TextAlign.left,
+                            softWrap: false,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
+                        Text(widget.artist,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color: AppColors.deFautLabelIcon),
+                            textAlign: TextAlign.left,
+                            softWrap: false,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Container(
-              width: 120,
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(name,
-                  style: const TextStyle(
-                      fontSize: 15,
-                      fontFamily: "SpotifyCircularBold",
-                      color: Colors.white),
-                  textAlign: TextAlign.left,
-                  softWrap: false,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis),
+          ),
+
+          // Overlay khi nhấn vào
+           Positioned.fill(
+            child: AnimatedOpacity(
+              opacity: isTapped ? 0.3 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black, // Màu overlay
+                  borderRadius: BorderRadius.circular(widget.borderRadius.toDouble()),
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

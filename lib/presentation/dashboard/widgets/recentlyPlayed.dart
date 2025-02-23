@@ -2,50 +2,79 @@
 
 import 'package:flutter/material.dart';
 
-class recentlyPlayed extends StatelessWidget{
+class RecentlyPlayed extends StatefulWidget {
   final String image;
   final String name;
-  final int border_radius;
-  final List<Map<String, dynamic>> artistAndPodcastersItems;
-  const recentlyPlayed({super.key, required this.name, required this.image, required this.border_radius, required this.artistAndPodcastersItems});
+  final double border_radius; // Chuyển từ int sang double
+
+  const RecentlyPlayed({
+    super.key,
+    required this.name,
+    required this.image,
+    required this.border_radius,
+  });
+
+  @override
+  _RecentlyPlayedState createState() => _RecentlyPlayedState();
+}
+
+class _RecentlyPlayedState extends State<RecentlyPlayed> {
+  bool isTapped = false;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-      //   Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //           builder: (context) => artistsScreen(name: name, image: image, moreLikeThisItems: artistAndPodcastersItems)));
-       },
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 5, right: 5),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(double.parse(border_radius.toString())),
-              child: Image.network(image, height: 120, width: 120),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => isTapped = true),
+      onTapUp: (_) => setState(() => isTapped = false),
+      onTapCancel: () => setState(() => isTapped = false),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedScale(
+            scale: isTapped ? 0.95 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(widget.border_radius),
+                    child: Image.network(widget.image, height: 120, width: 120),
+                  ),
+                  Container(
+                    width: 120,
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      widget.name,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Container(
-              width: 120,
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(name,
-                  style: const TextStyle(
-                      fontSize: 15,
-                      fontFamily: "SpotifyCircularBold",
-                      color: Colors.white),
-                  textAlign: TextAlign.left,
-                  softWrap: false,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis),
+          ),
+          Positioned.fill(
+            child: AnimatedOpacity(
+              opacity: isTapped ? 0.3 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(widget.border_radius),
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

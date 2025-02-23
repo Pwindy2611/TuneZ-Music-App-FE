@@ -1,13 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/dashboard/pages/dashboard_page.dart';
 import 'package:tunezmusic/presentation/library/pages/library.dart';
+import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
+import 'package:tunezmusic/presentation/main/bloc/recent_playlist_event.dart';
+import 'package:tunezmusic/presentation/main/bloc/recent_playlist_state.dart';
+import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_bloc.dart';
+import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_event.dart';
+import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_state.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_event.dart';
+import 'package:tunezmusic/presentation/main/bloc/user_playlist_state.dart';
 import 'package:tunezmusic/presentation/main/widgets/item_bottom_nav.dart';
 import 'package:tunezmusic/presentation/premium/pages/premium.dart';
 import 'package:tunezmusic/presentation/search/pages/search.dart';
@@ -35,7 +43,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-   _fetchUserData();
+    _fetchUserData();
   }
 
   Future<void> _fetchUserData() async {
@@ -48,10 +56,21 @@ class _MainPageState extends State<MainPage> {
 
     if (savedUserId.isNotEmpty) {
       final userPlaylistBloc = context.read<UserPlaylistBloc>();
-      userPlaylistBloc.add(FetchUserPlaylistEvent(savedUserId));
-    }
+      final recentPlaylistBloc = context.read<RecentPlaylistBloc>();
+      // final throwbackPlaylistBloc = context.read<ThrowbackPlaylistBloc>();
 
-    await Future.delayed(const Duration(seconds: 2));
+      // Thêm sự kiện vào Bloc
+      userPlaylistBloc.add(FetchUserPlaylistEvent(savedUserId));
+      recentPlaylistBloc.add(FetchRecentPlaylistEvent(savedUserId));
+      // throwbackPlaylistBloc.add(FetchThrowbackPlaylistEvent(savedUserId));
+
+      // Đợi cả 3 Bloc hoàn thành
+      await Future.wait([
+        _waitForBlocToComplete(userPlaylistBloc),
+        _waitForBlocToComplete(recentPlaylistBloc),
+        // _waitForBlocToComplete(throwbackPlaylistBloc),
+      ]);
+    }
 
     if (mounted) {
       setState(() {
@@ -60,6 +79,17 @@ class _MainPageState extends State<MainPage> {
       });
     }
   }
+
+// Hàm đợi Bloc hoàn thành (lắng nghe đến khi không còn trạng thái Loading)
+ Future<void> _waitForBlocToComplete<T>(Bloc bloc) async {
+  await for (final state in bloc.stream) {
+    // Thoát khỏi vòng lặp nếu Bloc không còn trạng thái Loading
+    if (state is RecentPlaylistLoaded  || 
+        state is UserPlaylistLoaded ) {
+      break;
+    }
+  }
+}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -75,10 +105,30 @@ class _MainPageState extends State<MainPage> {
   }
 
   final bottomNavItems = [
-    {'index': 0, 'icon': AppVectors.iconHome, 'focusedIcon': AppVectors.iconHomeFocus, 'label': 'Trang chủ'},
-    {'index': 1, 'icon': AppVectors.iconSearch, 'focusedIcon': AppVectors.iconSearchFocus, 'label': 'Tìm kiếm'},
-    {'index': 2, 'icon': AppVectors.iconLibrary, 'focusedIcon': AppVectors.iconLibraryFocus, 'label': 'Thư viện'},
-    {'index': 3, 'icon': AppVectors.iconPremium, 'focusedIcon': AppVectors.iconPremiumFocus, 'label': 'Premium'},
+    {
+      'index': 0,
+      'icon': AppVectors.iconHome,
+      'focusedIcon': AppVectors.iconHomeFocus,
+      'label': 'Trang chủ'
+    },
+    {
+      'index': 1,
+      'icon': AppVectors.iconSearch,
+      'focusedIcon': AppVectors.iconSearchFocus,
+      'label': 'Tìm kiếm'
+    },
+    {
+      'index': 2,
+      'icon': AppVectors.iconLibrary,
+      'focusedIcon': AppVectors.iconLibraryFocus,
+      'label': 'Thư viện'
+    },
+    {
+      'index': 3,
+      'icon': AppVectors.iconPremium,
+      'focusedIcon': AppVectors.iconPremiumFocus,
+      'label': 'Premium'
+    },
   ];
 
   @override
@@ -90,7 +140,8 @@ class _MainPageState extends State<MainPage> {
           : Stack(
               children: [
                 Positioned.fill(
-                  child: IndexedStack(index: _selectedIndex, children: _widgetOptions),
+                  child: IndexedStack(
+                      index: _selectedIndex, children: _widgetOptions),
                 ),
                 Positioned(
                   left: 0,
@@ -105,7 +156,10 @@ class _MainPageState extends State<MainPage> {
                       height: 110,
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color.fromARGB(157, 0, 0, 0), Color.fromARGB(0, 0, 0, 0)],
+                          colors: [
+                            Color.fromARGB(157, 0, 0, 0),
+                            Color.fromARGB(0, 0, 0, 0)
+                          ],
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                         ),
@@ -129,8 +183,10 @@ class _MainPageState extends State<MainPage> {
                         currentIndex: _selectedIndex,
                         selectedItemColor: Colors.white,
                         unselectedItemColor: Colors.grey,
-                        selectedLabelStyle: const TextStyle(fontSize: 11, color: Colors.white),
-                        unselectedLabelStyle: const TextStyle(fontSize: 11, color: Colors.grey),
+                        selectedLabelStyle:
+                            const TextStyle(fontSize: 11, color: Colors.white),
+                        unselectedLabelStyle:
+                            const TextStyle(fontSize: 11, color: Colors.grey),
                         onTap: _onItemTapped,
                       ),
                     ),

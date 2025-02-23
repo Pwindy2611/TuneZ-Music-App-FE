@@ -10,6 +10,8 @@ import 'package:tunezmusic/presentation/dashboard/widgets/artistAndPodcastersCol
 import 'package:tunezmusic/presentation/dashboard/widgets/recentPlaylistContainer.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/recentlyPlayed.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
+import 'package:tunezmusic/presentation/main/bloc/recent_playlist_state.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_state.dart';
 
@@ -40,14 +42,14 @@ class _homeScreenState extends State<HomeScreen> {
               children: [
                 // TODO: Put all left and right paddings in this outer column
                 Padding(
-                  padding: const EdgeInsets.only(top: 35),
+                  padding: const EdgeInsets.only(top: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Padding(
                         padding: EdgeInsets.only(left: 15),
-                        child: Text("User Playlist",
+                        child: Text("Gần đây",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 25,
@@ -57,65 +59,57 @@ class _homeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                BlocBuilder<UserPlaylistBloc, UserPlaylistState>(
+                BlocBuilder<RecentPlaylistBloc, RecentPlaylistState>(
                   builder: (context, state) {
-                     if (kDebugMode) {
-          print("Current state: $state");
-        }
+                    if (kDebugMode) {
+                      print("Current state: $state");
+                    }
 
-        if (state is UserPlaylistLoaded) {
-          if (kDebugMode) {
-            print("UserPlaylistLoaded: ${state.playlist}");
-          }
-
-          return Center(
-            child: Text(
-              "PlayList: ${state.playlist}",
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
-        else if (state is UserPlaylistError) {
-          if (kDebugMode) {
-            print("UserPlaylistError: ${state.message}");
-          } 
-          return Center(
-            child: Text(
-              "Error: ${state.message}",
-              style: TextStyle(color: Colors.red),
-            ),);
-        }
-          // return GridView.builder(
-                      //   gridDelegate:
-                      //       const SliverGridDelegateWithFixedCrossAxisCount(
-                      //     crossAxisCount: 2,
-                      //     mainAxisSpacing: 10,
-                      //     crossAxisSpacing: 10,
-                      //     childAspectRatio: 3.125,
-                      //   ),
-                      //   primary: false,
-                      //   padding: const EdgeInsets.only(left: 15, right: 15),
-                      //   shrinkWrap: true,
-                      //   itemCount: 0,
-                      //   itemBuilder: (BuildContext context, index) {
-                      //     // return recentPlaylistContainer(
-                      //     //   name: recentPlaylistItems[index]["name"],
-                      //     //   image: recentPlaylistItems[index]["image"],
-                      //     //   artistAndPodcastersItems: artistAndPodcastersItems,
-                      //     // );
-                      //   },
-                      // );
+                    if (state is RecentPlaylistLoaded) {
+                      if (kDebugMode) {
+                        print("UserPlaylistLoaded: ${state.playlist}");
+                      }
+                      return Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                for (int i = 0; i < state.playlist.length; i++)
+                                  ArtistAndPodcastersColumn(
+                                    name: state.playlist[i]['name'],
+                                    artist: state.playlist[i]['artist'],
+                                    image:
+                                        'https://i.scdn.co/image/ab67616d00001e02bf5cce5a0e1ed03a626bdd74',
+                                    borderRadius: 8,
+                                  ),
+                              ],
+                            ),
+                          ));
+                    } else if (state is RecentPlaylistError) {
+                      if (kDebugMode) {
+                        print("UserPlaylistError: ${state.message}");
+                      }
+                      return Center(
+                        child: Text(
+                          "Error: ${state.message}",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
                     // Trả về widget mặc định nếu state không phải UserPlaylistLoaded
-        // Trả về widget loading nếu state chưa được load
-        return const Center(child: CircularProgressIndicator());
-      },
+                    // Trả về widget loading nếu state chưa được load
+                    return const Center(child: CircularProgressIndicator());
+                  },
                 ),
                 const Padding(
                     padding: EdgeInsets.only(
                         top: 30, left: 15, right: 15, bottom: 15),
                     child: SizedBox(
                       width: double.infinity,
-                      child: Text("Recently played",
+                      child: Text("Nghệ sĩ phổ biến",
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 25,
@@ -123,27 +117,53 @@ class _homeScreenState extends State<HomeScreen> {
                               fontFamily: "SpotifyCircularBold"),
                           textAlign: TextAlign.left),
                     )),
-                // Padding(
-                //     padding: const EdgeInsets.only(left: 15, right: 15),
-                //     child: SingleChildScrollView(
-                //       scrollDirection: Axis.horizontal,
-                //       child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                //         crossAxisAlignment: CrossAxisAlignment.start,
-                //         children: [
-                //           for (int i = 0;
-                //               i < recentPlayedItems.length;
-                //               i++)
-                //             recentlyPlayed(
-                //                 name: recentPlayedItems[i]['name'],
-                //                 image: recentPlayedItems[i]['image'],
-                //                 border_radius: recentPlayedItems[i]
-                //                     ['border_radius'],
-                //                 artistAndPodcastersItems:
-                //                   artistAndPodcastersItems),
-                //         ],
-                //       ),
-                //     )),
+                BlocBuilder<UserPlaylistBloc, UserPlaylistState>(
+                  builder: (context, state) {
+                    if (kDebugMode) {
+                      print("Current state: $state");
+                    }
+
+                    if (state is UserPlaylistLoaded) {
+                      if (kDebugMode) {
+                        print("UserPlaylistLoaded: ${state.playlist}");
+                      }
+
+                      List<String> artistNames =
+                          state.playlist.keys.toList(); // Lấy danh sách nghệ sĩ
+
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 15, right: 15),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: artistNames.map((artistName) {
+                              return RecentlyPlayed(
+                                name: artistName, // Tên nghệ sĩ
+                                image:
+                                    'https://i.scdn.co/image/ab67616100005174579763c716425127661bda67',
+                                border_radius: 100,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      );
+                    } else if (state is UserPlaylistError) {
+                      if (kDebugMode) {
+                        print("UserPlaylistError: ${state.message}");
+                      }
+                      return Center(
+                        child: Text(
+                          "Error: ${state.message}",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                ),
                 const Padding(
                     padding: EdgeInsets.only(
                         top: 15, left: 15, right: 15, bottom: 15),
@@ -256,47 +276,47 @@ class _homeScreenState extends State<HomeScreen> {
     );
   }
 
-  showDialogBox() {
-    return showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-              title: const Text(
-                "No internet connection",
-                style: TextStyle(
-                    fontFamily: "SpotifyCircularBold", color: Colors.white),
-              ),
-              content: const Text(
-                "Turn on mobile data or connect to Wi-Fi.",
-                style: TextStyle(
-                    fontFamily: "SpotifyCircularLight",
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25)),
-              backgroundColor: AppColors.darkBackground,
-              actionsAlignment: MainAxisAlignment.center,
-              surfaceTintColor: Colors.red,
-              actions: <Widget>[
-                ElevatedButton(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 10,
-                        textStyle: const TextStyle(
-                            fontFamily: "SpotifyCircularBold",
-                            color: Colors.white,
-                            fontSize: 18),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25)),
-                        fixedSize: const Size(250, 50)),
-                    child: const Text("Try Again"))
-              ],
-            ));
-  }
+//   showDialogBox() {
+//     return showDialog(
+//         barrierDismissible: false,
+//         context: context,
+//         builder: (BuildContext context) => AlertDialog(
+//               title: const Text(
+//                 "No internet connection",
+//                 style: TextStyle(
+//                     fontFamily: "SpotifyCircularBold", color: Colors.white),
+//               ),
+//               content: const Text(
+//                 "Turn on mobile data or connect to Wi-Fi.",
+//                 style: TextStyle(
+//                     fontFamily: "SpotifyCircularLight",
+//                     color: Colors.white,
+//                     fontWeight: FontWeight.bold),
+//                 textAlign: TextAlign.center,
+//               ),
+//               shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(25)),
+//               backgroundColor: AppColors.darkBackground,
+//               actionsAlignment: MainAxisAlignment.center,
+//               surfaceTintColor: Colors.red,
+//               actions: <Widget>[
+//                 ElevatedButton(
+//                     onPressed: () async {
+//                       Navigator.pop(context);
+//                     },
+//                     style: ElevatedButton.styleFrom(
+//                         backgroundColor: AppColors.primary,
+//                         foregroundColor: Colors.white,
+//                         elevation: 10,
+//                         textStyle: const TextStyle(
+//                             fontFamily: "SpotifyCircularBold",
+//                             color: Colors.white,
+//                             fontSize: 18),
+//                         shape: RoundedRectangleBorder(
+//                             borderRadius: BorderRadius.circular(25)),
+//                         fixedSize: const Size(250, 50)),
+//                     child: const Text("Try Again"))
+//               ],
+//             ));
+//   }
 }

@@ -3,7 +3,7 @@ abstract class UserPlaylistState {}
 class UserPlaylistLoading extends UserPlaylistState {}
 
 class UserPlaylistLoaded extends UserPlaylistState {
-  final List<dynamic> playlist;
+  final Map<String, List<dynamic>> playlist;
   UserPlaylistLoaded(this.playlist);
 }
 

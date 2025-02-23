@@ -26,12 +26,10 @@ class UserPlaylistBloc extends Bloc<UserPlaylistEvent, UserPlaylistState> {
         if (response['musics'] is Map &&
             response['musics']['playlistsByArtist'] is Map) {
           // Gộp tất cả danh sách bài hát của các nghệ sĩ thành một danh sách chung
-          final List<dynamic> allSongs = response['musics']['playlistsByArtist']
-              .values
-               .expand((songs) => songs as List<dynamic>)
-              .toList();
+          final Map<String, List<dynamic>> artistPlaylists =
+              Map<String, List<dynamic>>.from(response['musics']['playlistsByArtist']);
 
-          emit(UserPlaylistLoaded(allSongs));
+          emit(UserPlaylistLoaded(artistPlaylists));
         } else {
           emit(UserPlaylistError(
               "API trả về dữ liệu không hợp lệ: 'musics.playlistsByArtist' không đúng định dạng"));
