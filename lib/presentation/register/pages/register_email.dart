@@ -86,6 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
             title: "Tạo tài khoản",
             titleColor: Colors.white,
             titleSize: 16,
+            bgColor: null,
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),

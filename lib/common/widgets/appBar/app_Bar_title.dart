@@ -5,10 +5,12 @@ class TitleAppBar extends StatelessWidget implements PreferredSizeWidget {
     final String title;
     final double? titleSize;
     final Color? titleColor;
+    final Color? bgColor;
     const TitleAppBar({
       required this.title,
       required this.titleSize,
       required this.titleColor,
+      required this.bgColor,
       super.key});
     
     @override
@@ -24,7 +26,7 @@ class TitleAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           titleSpacing: 0,
           centerTitle: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor: bgColor ?? Colors.transparent,
           elevation: 0,
           leading:  BackGreyAppButton(
           onPressed: (){},
@@ -38,5 +40,5 @@ class TitleAppBar extends StatelessWidget implements PreferredSizeWidget {
     
       @override
       // TODO: implement preferredSize
-      Size get preferredSize => Size.fromHeight(70);
+      Size get preferredSize => Size.fromHeight(60);
 }

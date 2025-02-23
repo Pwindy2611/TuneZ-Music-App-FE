@@ -10,6 +10,7 @@ import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:tunezmusic/presentation/settingAccount/pages/setting_account.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
 
 void main() async {
@@ -48,7 +49,7 @@ class MainApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: SplashPage(),
+      home: SettingAccountPage(),
     );
   }
 }

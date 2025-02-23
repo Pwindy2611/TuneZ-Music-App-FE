@@ -74,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
             title: "Đăng nhập",
             titleColor: Colors.white,
             titleSize: 16,
+            bgColor: null,
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
