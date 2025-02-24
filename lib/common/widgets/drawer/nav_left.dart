@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tunezmusic/core/configs/assets/app_images.dart';
+import 'package:tunezmusic/presentation/settingAccount/pages/setting_account.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -98,7 +99,10 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => SettingAccountPage()),
+            );
             },
           ),
         ],

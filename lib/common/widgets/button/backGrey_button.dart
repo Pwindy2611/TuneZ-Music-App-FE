@@ -21,15 +21,7 @@ import 'package:tunezmusic/presentation/intro/pages/get_started.dart';
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () {
-        FocusScope.of(context).unfocus();
-        Future.delayed(const Duration(milliseconds: 300), () {
-        Navigator.push(context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => GetStartedPage()
-        ));
-          });
-      },
+      onPressed: onPressed,
       icon: Container(
         height: size ?? 50,
         width: size ?? 50,

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "594252561024",
+    "firebase_url": "https://tunez-ddb5f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tunez-ddb5f",
+    "storage_bucket": "tunez-ddb5f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594252561024:android:08a8d21e4936bd484bc465",
+        "android_client_info": {
+          "package_name": "com.example.tunezmusic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594252561024-37u2sgk5peusj2dnq0e6b3c98rieavhi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tunezmusic",
+            "certificate_hash": "7e5ff60a2d395a3f17891571618d557146d2f603"
+          }
+        },
+        {
+          "client_id": "594252561024-8tfrnhhhk7cjs3okmftbidaac30hmtbi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArnmIISGjUFlozDHI15paL7wtfKmvWwFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "594252561024-6pgeie663quk7ovet1cp9cjgbdsggq8g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

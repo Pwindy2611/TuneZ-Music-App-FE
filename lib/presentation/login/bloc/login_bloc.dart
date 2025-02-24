@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tunezmusic/core/lib/decode_token.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_event.dart';
@@ -40,7 +41,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
       // Gửi ID Token lên server
       final res = await apiService.post(
-        'users/login',
+        'users/login/google',
         {'idToken': idToken},
       );
       if (kDebugMode) {
@@ -50,7 +51,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         String firebaseToken = res['firebaseToken'] ?? '';
 
         // Giải mã JWT để lấy userId
-        String userId = _extractUserIdFromToken(firebaseToken);
+        String userId = extractUserIdFromToken(firebaseToken);
 
         // Lưu vào SharedPreferences
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -63,25 +64,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
     } catch (e) {
       emit(LoginErrorState("Lỗi khi đăng nhập: ${e.toString()}"));
-    }
-  }
-
-  // Hàm giải mã JWT để lấy userId
-  String _extractUserIdFromToken(String token) {
-    try {
-      final parts = token.split('.');
-      if (parts.length != 3) {
-        throw Exception("Token không hợp lệ");
-      }
-      final payload =
-          utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
-      final decodedJson = jsonDecode(payload);
-      return decodedJson['uid'] ?? ''; // Lấy userId từ payload
-    } catch (e) {
-      if (kDebugMode) {
-        print("Lỗi khi giải mã token: ${e.toString()}");
-      }
-      return '';
     }
   }
 }

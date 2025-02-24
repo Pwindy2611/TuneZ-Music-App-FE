@@ -1,42 +1,52 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/common/widgets/appBar/app_Bar_title.dart';
 import 'package:tunezmusic/common/widgets/button/light_button.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/main/pages/mainpage.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
 
 class SettingAccountPage extends StatelessWidget {
   const SettingAccountPage({super.key});
-  
-   Future<void> _signOut(BuildContext context) async {
-    try {
-      // Đăng xuất khỏi Firebase
-      await FirebaseAuth.instance.signOut();
 
-      // Xóa thông tin trong SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove("userId");
-      await prefs.remove("token");
+ Future<void> _signOut(BuildContext context) async {
+  try {
+    // Đăng xuất khỏi Firebase
+    await FirebaseAuth.instance.signOut();
 
-      // Chuyển hướng đến SplashPage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SplashPage()),
-      );
-    } catch (e) {
-      print("Lỗi đăng xuất: $e");
-    }
+    // Đăng xuất khỏi Google
+    await GoogleSignIn().signOut(); 
+    await GoogleSignIn().disconnect(); // Ngắt kết nối hoàn toàn với Google
+
+    // Xóa thông tin trong SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("userId");
+    await prefs.remove("token");
+
+    // Chuyển hướng đến SplashPage
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const SplashPage()),
+    );
+  } catch (e) {
+    print("Lỗi đăng xuất: $e");
   }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TitleAppBar(
-        title: "Cài đặt",
-        titleColor: Colors.white,
-        titleSize: 18,
-        bgColor: AppColors.darkGrey,
-      ),
+          title: "Cài đặt",
+          titleColor: Colors.white,
+          titleSize: 18,
+          bgColor: AppColors.darkGrey,
+          onBackPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MainPage()),
+              )),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 20),
         child: Column(

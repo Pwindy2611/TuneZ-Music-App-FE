@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_theme.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
+import 'package:tunezmusic/data/services/bloc/auth_bloc.dart';
 import 'package:tunezmusic/data/services/firebase_options.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_bloc.dart';
@@ -35,6 +36,7 @@ void main() async {
       BlocProvider(create: (context) => UserPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => ThrowbackPlaylistBloc(ApiService())),
+      BlocProvider(create: (context) => AuthBloc(ApiService())),
     ],
     child:MainApp())
   );
@@ -49,7 +51,7 @@ class MainApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: SettingAccountPage(),
+      home: SplashPage(),
     );
   }
 }

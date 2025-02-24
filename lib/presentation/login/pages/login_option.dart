@@ -1,4 +1,6 @@
 import "dart:async";
+import "package:flutter/foundation.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_svg/svg.dart";
 import "package:tunezmusic/common/widgets/appBar/app_Bar_intro.dart";
 import "package:tunezmusic/common/widgets/button/basic_button.dart";
@@ -7,6 +9,9 @@ import "package:tunezmusic/core/configs/assets/app_images.dart";
 import "package:tunezmusic/core/configs/assets/app_vectors.dart";
 import "package:tunezmusic/core/configs/theme/app_colors.dart";
 import "package:flutter/material.dart";
+import "package:tunezmusic/data/services/bloc/auth_bloc.dart";
+import "package:tunezmusic/data/services/bloc/auth_event.dart";
+import "package:tunezmusic/data/services/bloc/auth_state.dart";
 import "package:tunezmusic/presentation/login/pages/login_email.dart";
 import "package:tunezmusic/presentation/register/pages/register_option.dart";
 
@@ -56,7 +61,7 @@ class LoginOptionPage extends StatelessWidget {
                       SizedBox(height: 10,),
                       resByPhone(),
                       SizedBox(height: 10,),
-                      resByGoogle(),
+                      resByGoogle(context),
                       SizedBox(height: 10,),
                       resByFacebook(),
                       SizedBox(height: 20,),
@@ -101,17 +106,48 @@ class LoginOptionPage extends StatelessWidget {
     );
   }
 
-  Widget resByGoogle(){
-    return BasicAppOlButton(
-      title: 'Tiếp tục bằng Google',
-      outlineColor: null,
-      colors: Colors.white,
-      icon: AppImages.googleIcon,
-      onPressed: () {},
-      textSize: 17,
-      height: 52,
-    );
-  }
+  Widget resByGoogle(BuildContext context) {
+  return BlocConsumer<AuthBloc, AuthState>(
+    listener: (context, state) {
+      if (state is AuthLoading) {
+        // Hiển thị loading
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        );
+      } else if (state is AuthSuccess) {
+        // Đóng loading và điều hướng
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Đăng nhập thành công!'))
+        );
+      } else if (state is AuthFailure) {
+        // Đóng loading và hiển thị lỗi
+        Navigator.pop(context);
+        if (kDebugMode) {
+          print(state.error);
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.error))
+        );
+      }
+    },
+    builder: (context, state) {
+      return BasicAppOlButton(
+        title: 'Tiếp tục bằng Google',
+        outlineColor: null,
+        colors: Colors.white,
+        icon: AppImages.googleIcon,
+        onPressed: () {
+          context.read<AuthBloc>().add(SignInWithGoogle());
+        },
+        textSize: 17,
+        height: 52,
+      );
+    },
+  );
+}
 
   Widget resByFacebook(){
     return BasicAppOlButton(
