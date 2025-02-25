@@ -16,9 +16,6 @@ class SettingAccountPage extends StatelessWidget {
     // Đăng xuất khỏi Firebase
     await FirebaseAuth.instance.signOut();
 
-    // Đăng xuất khỏi Google
-    await GoogleSignIn().signOut(); 
-    await GoogleSignIn().disconnect(); // Ngắt kết nối hoàn toàn với Google
 
     // Xóa thông tin trong SharedPreferences
     final prefs = await SharedPreferences.getInstance();

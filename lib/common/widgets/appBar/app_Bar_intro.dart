@@ -1,7 +1,8 @@
 import 'package:tunezmusic/common/widgets/button/backGrey_button.dart';
 import 'package:flutter/material.dart';
 class IntroAppBar extends StatelessWidget implements PreferredSizeWidget {
-    const IntroAppBar({super.key});
+    final VoidCallback? onPressed;
+    const IntroAppBar({super.key, this.onPressed});
     
     @override
     Widget build(BuildContext context) {
@@ -10,7 +11,9 @@ class IntroAppBar extends StatelessWidget implements PreferredSizeWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading:  BackGreyAppButton(
-          onPressed: (){},
+          onPressed:() => onPressed ?? () => {  Navigator.pop(context),
+          FocusScope.of(context).unfocus(),
+          Future.delayed(const Duration(milliseconds: 300))},
           size: 50,
           colors: null, 
           btnColor: null,

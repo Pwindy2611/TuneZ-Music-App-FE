@@ -31,18 +31,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
+      
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
       );
-
+   
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
-     
+      String idToken = await userCredential.user?.getIdToken() ?? '';
+      if (kDebugMode) {
+         print("Token: ${idToken}");
+      }
       final res = await apiService.post(
         'users/login',
-        {'idToken': googleAuth.accessToken},
+        {'idToken': idToken},
       );
       if (kDebugMode) {
-        print("API Res: ${res}");
          print("API Response: ${jsonEncode(res)}");
       }
       if (res['success'] == true) {
