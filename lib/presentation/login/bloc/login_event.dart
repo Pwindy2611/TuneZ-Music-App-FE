@@ -17,3 +17,8 @@ class LoginEmailEvent extends LoginEvent {
   List<Object?> get props => [email,password];
 }
 
+class SignInWithGoogleEvent extends LoginEvent {}
+
+class SignInWithFacebookEvent extends LoginEvent{}
+
+class ForgotPasswordEvent extends LoginEvent{}

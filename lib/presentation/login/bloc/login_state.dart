@@ -7,16 +7,11 @@ abstract class LoginState extends Equatable {
   List<Object?> get props => [];
 }
 
-// Trạng thái ban đầu
 class LoginInitialState extends LoginState {}
 
-// Trạng thái đang tải (loading)
-class LoginLoadingState extends LoginState {}
 
-// Trạng thái xác minh email thành công
-class LoginEmailState extends LoginState {}
+class LoginEmailLoadingState extends LoginState {}
 
-// Trạng thái đăng ký hoàn tất
 class LoginCompletedState extends LoginState {}
 
 // Trạng thái lỗi
@@ -28,3 +23,28 @@ class LoginErrorState extends LoginState {
   @override
   List<Object?> get props => [message];
 }
+
+class LoginGoogleLoadingState extends LoginState {}
+
+
+class LoginFacebookLoadingState extends LoginState {}
+
+class LoginFacebookErrorState extends LoginState {
+   final String message;
+
+  const LoginFacebookErrorState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class LoginGoogleErrorState extends LoginState {
+   final String message;
+
+  const LoginGoogleErrorState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class DoVerifiedLoginState extends LoginState {}

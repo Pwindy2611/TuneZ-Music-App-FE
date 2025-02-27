@@ -191,6 +191,7 @@ class _RegisterPageState extends State<RegisterPage> {
           validator: validateName,
         ),
         onNext: () async {
+           FocusManager.instance.primaryFocus?.unfocus();
           BlocProvider.of<RegisterBloc>(context).add(RegisterSubmitAccountEvent(
               usernameController.text,
               passwordController.text,

@@ -4,14 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_theme.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
-import 'package:tunezmusic/data/services/bloc/auth_bloc.dart';
 import 'package:tunezmusic/data/services/firebase_options.dart';
+import 'package:tunezmusic/presentation/login/bloc/login_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:tunezmusic/presentation/settingAccount/pages/setting_account.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
 
 void main() async {
@@ -36,7 +35,7 @@ void main() async {
       BlocProvider(create: (context) => UserPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => ThrowbackPlaylistBloc(ApiService())),
-      BlocProvider(create: (context) => AuthBloc(ApiService())),
+      BlocProvider(create: (context) => LoginBloc(ApiService())),
     ],
     child:MainApp())
   );

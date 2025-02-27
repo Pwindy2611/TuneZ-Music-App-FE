@@ -11,7 +11,7 @@ class IntroAppBar extends StatelessWidget implements PreferredSizeWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading:  BackGreyAppButton(
-          onPressed:() => onPressed ?? () => {  Navigator.pop(context),
+          onPressed: onPressed ?? () => {  Navigator.pop(context),
           FocusScope.of(context).unfocus(),
           Future.delayed(const Duration(milliseconds: 300))},
           size: 50,

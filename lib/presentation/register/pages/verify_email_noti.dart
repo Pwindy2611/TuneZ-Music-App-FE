@@ -3,6 +3,7 @@ import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tunezmusic/common/widgets/button/basic_outline_button.dart';
 import 'package:tunezmusic/presentation/login/pages/login_email.dart';
+import 'package:tunezmusic/presentation/login/pages/login_option.dart';
 class VerifyEmail extends StatelessWidget {
   const VerifyEmail ({super.key});
 
@@ -82,7 +83,7 @@ class VerifyEmail extends StatelessWidget {
     onPressed: () {
         Navigator.push(context,
           MaterialPageRoute(
-            builder: (BuildContext context) => LoginPage()
+            builder: (BuildContext context) => LoginOptionPage()
           ));
       },
       textSize: 17,

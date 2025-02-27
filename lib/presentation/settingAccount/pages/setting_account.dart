@@ -13,9 +13,11 @@ class SettingAccountPage extends StatelessWidget {
 
  Future<void> _signOut(BuildContext context) async {
   try {
+     final GoogleSignIn googleSignIn = GoogleSignIn();
     // Đăng xuất khỏi Firebase
+    await googleSignIn.signOut();
     await FirebaseAuth.instance.signOut();
-
+    
 
     // Xóa thông tin trong SharedPreferences
     final prefs = await SharedPreferences.getInstance();
