@@ -56,6 +56,16 @@ class LoginOptionPage extends StatelessWidget {
           }
         } else if (state is LoginGoogleErrorState ||
             state is LoginFacebookErrorState) {
+             if(state is LoginGoogleErrorState){
+               if (kDebugMode) {
+                 print(state.message);
+               }
+             }
+             else if(state is LoginFacebookErrorState){
+               if (kDebugMode) {
+                 print(state.message);
+               }
+             }
           Navigator.of(context, rootNavigator: true).pop();
         }
       },

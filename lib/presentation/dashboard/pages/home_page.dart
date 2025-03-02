@@ -1,15 +1,10 @@
 // ignore_for_file: file_names, camel_case_types, non_constant_identifier_names
-
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:marquee/marquee.dart';
-import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/artistAndPodcastersColumn.dart';
-import 'package:tunezmusic/presentation/dashboard/widgets/recentPlaylistContainer.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/recentlyPlayed.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_state.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';

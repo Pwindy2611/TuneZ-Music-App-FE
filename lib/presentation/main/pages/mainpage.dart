@@ -60,18 +60,18 @@ class _MainPageState extends State<MainPage> {
     if (savedUserId.isNotEmpty) {
       final userPlaylistBloc = context.read<UserPlaylistBloc>();
       final recentPlaylistBloc = context.read<RecentPlaylistBloc>();
-      // final throwbackPlaylistBloc = context.read<ThrowbackPlaylistBloc>();
+      final throwbackPlaylistBloc = context.read<ThrowbackPlaylistBloc>();
 
       // Thêm sự kiện vào Bloc
       userPlaylistBloc.add(FetchUserPlaylistEvent(savedUserId));
       recentPlaylistBloc.add(FetchRecentPlaylistEvent(savedUserId));
-      // throwbackPlaylistBloc.add(FetchThrowbackPlaylistEvent(savedUserId));
+      throwbackPlaylistBloc.add(FetchThrowbackPlaylistEvent(savedUserId));
 
       // Đợi cả 3 Bloc hoàn thành
       await Future.wait([
         _waitForBlocToComplete(userPlaylistBloc),
         _waitForBlocToComplete(recentPlaylistBloc),
-        // _waitForBlocToComplete(throwbackPlaylistBloc),
+        _waitForBlocToComplete(throwbackPlaylistBloc),
       ]);
     }
 
@@ -87,10 +87,10 @@ class _MainPageState extends State<MainPage> {
   Future<void> _waitForBlocToComplete<T>(Bloc bloc) async {
     await for (final state in bloc.stream) {
       // Thoát khỏi vòng lặp nếu Bloc không còn trạng thái Loading
-      if (state is RecentPlaylistLoaded || state is UserPlaylistLoaded) {
+      if (state is RecentPlaylistLoaded || state is UserPlaylistLoaded || state is ThrowbackPlaylistLoaded) {
         break;
       }
-      if (state is RecentPlaylistError || state is UserPlaylistError) {
+      if (state is RecentPlaylistError || state is UserPlaylistError || state is ThrowbackPlaylistError) {
         final GoogleSignIn googleSignIn = GoogleSignIn();
         isLoading = false;
         // Đăng xuất khỏi Firebase
