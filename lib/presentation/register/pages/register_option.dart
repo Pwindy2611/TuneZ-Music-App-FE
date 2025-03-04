@@ -3,6 +3,7 @@ import "package:flutter_svg/svg.dart";
 import "package:tunezmusic/common/widgets/appBar/app_Bar_intro.dart";
 import "package:tunezmusic/common/widgets/button/basic_button.dart";
 import "package:tunezmusic/common/widgets/button/basic_outline_button.dart";
+import "package:tunezmusic/common/widgets/button/facebook_login_button.dart";
 import "package:tunezmusic/common/widgets/button/google_login_button.dart";
 import "package:tunezmusic/core/configs/assets/app_images.dart";
 import "package:tunezmusic/core/configs/assets/app_vectors.dart";
@@ -59,7 +60,7 @@ class RegisterOptionPage extends StatelessWidget {
                       SizedBox(height: 10,),
                       resByGoogle(context),
                       SizedBox(height: 10,),
-                      resByFacebook(),
+                      resByFacebook(context),
                       SizedBox(height: 20,),
                       Text("Bạn đã có tài khoản?", style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500, fontSize: 16)),
                       SizedBox(height: 20,),
@@ -96,18 +97,6 @@ class RegisterOptionPage extends StatelessWidget {
       outlineColor: null,
       colors: Colors.white,
       icon: AppImages.phoneIcon,
-      onPressed: () {},
-      textSize: 17,
-      height: 52,
-    );
-  }
-
-  Widget resByFacebook(){
-    return BasicAppOlButton(
-      title: 'Tiếp tục bằng Facebook',
-      outlineColor: null,
-      colors: Colors.white,
-      icon: AppImages.facebookIcon,
       onPressed: () {},
       textSize: 17,
       height: 52,

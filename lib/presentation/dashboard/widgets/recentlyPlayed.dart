@@ -39,10 +39,17 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(widget.border_radius),
-                    child: Image.network(widget.image, height: 120, width: 120),
+                   Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle, 
+                    image: DecorationImage(
+                      image: NetworkImage(widget.image),
+                      fit: BoxFit.cover,
+                    ),
                   ),
+                ),
                   Container(
                     width: 120,
                     padding: const EdgeInsets.only(top: 10),

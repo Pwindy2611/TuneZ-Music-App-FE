@@ -46,13 +46,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       // Lấy Firebase ID Token
       String? idToken = await userCredential.user?.getIdToken();
 
-      if (idToken == null) {
-        emit(LoginErrorState("Không thể lấy ID Token từ Firebase."));
-        return;
-      }
-
       // Gọi hàm xử lý đăng nhập Firebase
-      await handleLoginResponseByServer(idToken, emit, (errorMessage) {
+      await handleLoginResponseByServer(idToken!, emit, (errorMessage) {
         LoginErrorState((errorMessage));
       });
     } catch (e) {

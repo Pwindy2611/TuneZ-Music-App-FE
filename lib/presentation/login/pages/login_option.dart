@@ -5,6 +5,7 @@ import "package:flutter_svg/svg.dart";
 import "package:tunezmusic/common/widgets/appBar/app_Bar_intro.dart";
 import "package:tunezmusic/common/widgets/button/basic_button.dart";
 import "package:tunezmusic/common/widgets/button/basic_outline_button.dart";
+import "package:tunezmusic/common/widgets/button/facebook_login_button.dart";
 import "package:tunezmusic/common/widgets/button/google_login_button.dart";
 import "package:tunezmusic/core/configs/assets/app_images.dart";
 import "package:tunezmusic/core/configs/assets/app_vectors.dart";
@@ -165,24 +166,6 @@ class LoginOptionPage extends StatelessWidget {
       onPressed: () {},
       textSize: 17,
       height: 52,
-    );
-  }
-
-  Widget resByFacebook(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        return BasicAppOlButton(
-          title: 'Tiếp tục bằng Facebook',
-          outlineColor: null,
-          colors: Colors.white,
-          icon: AppImages.facebookIcon,
-          onPressed: () {
-            context.read<LoginBloc>().add(SignInWithFacebookEvent());
-          },
-          textSize: 17,
-          height: 52,
-        );
-      },
     );
   }
 
