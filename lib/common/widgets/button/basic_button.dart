@@ -8,6 +8,7 @@ class BasicAppButton extends StatefulWidget {
   final String? icon;
   final Color? btnColor;
   final double? textSize;
+  final double? padding;
 
   const BasicAppButton({
     required this.onPressed,
@@ -17,6 +18,7 @@ class BasicAppButton extends StatefulWidget {
     this.icon,
     this.btnColor,
     this.textSize,
+    this.padding,
     super.key,
   });
 
@@ -79,15 +81,16 @@ class _BasicAppButtonState extends State<BasicAppButton>
               ),
           ),
           Center(
-            child: Text(
+            child:
+            Padding(padding:EdgeInsets.symmetric(vertical: widget.padding ?? 16 ),child:Text(
                 widget.title,
                 style: TextStyle(
                   color: widget.colors ?? Colors.black,
-                  fontSize: widget.textSize ?? 20,
+                  fontSize: widget.textSize ?? 16,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
-              ),
+              ),) 
           )
             ],
           ),

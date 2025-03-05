@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "594252561024-37u2sgk5peusj2dnq0e6b3c98rieavhi.apps.googleusercontent.com",
+          "client_id": "594252561024-qq6igh5leo57t8sodnj5745caa3fdlv0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.tunezmusic",
-            "certificate_hash": "7e5ff60a2d395a3f17891571618d557146d2f603"
+            "certificate_hash": "e5a84a777b4aa2018dd7faf1ad5394e718bd8d84"
           }
         },
         {

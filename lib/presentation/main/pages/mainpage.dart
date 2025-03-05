@@ -182,7 +182,7 @@ class _MainPageState extends State<MainPage> {
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color.fromARGB(157, 0, 0, 0),
+                              Color.fromARGB(255, 0, 0, 0),
                               Color.fromARGB(0, 0, 0, 0),
                             ],
                             begin: Alignment.bottomCenter,

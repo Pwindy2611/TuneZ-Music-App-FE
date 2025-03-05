@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_theme.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 import 'package:tunezmusic/data/services/firebase_options.dart';
-import 'package:tunezmusic/presentation/artistSelection/pages/ArtistSelectionPage.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_bloc.dart';
@@ -13,7 +12,6 @@ import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Đảm bảo Flutter khởi tạo đúng
@@ -52,7 +50,7 @@ class MainApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: ArtistSelectionPage(),
+      home: SplashPage(),
     );
   }
 }

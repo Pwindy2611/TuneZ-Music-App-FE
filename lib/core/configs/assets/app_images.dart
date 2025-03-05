@@ -6,4 +6,5 @@ class AppImages {
   static const String emailIcon = '${basePath}Email_icon.png';
   static const String phoneIcon = '${basePath}Phone_icon.png';
   static const String localAvt = '${basePath}avt.jpg';
+  static const String backgroundPremium = '${basePath}desktop-album-evergreen-1x.png';
 }
