@@ -1,15 +1,27 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class ApiService {
-  final String baseUrl = dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '';
+  late Dio _dio;
+  late CookieJar _cookieJar;
+
+  ApiService() {
+    _dio = Dio(BaseOptions(
+      baseUrl: dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '',
+      headers: {'Content-Type': 'application/json'},
+    ));
+
+    _cookieJar = CookieJar();
+    _dio.interceptors.add(CookieManager(_cookieJar));
+  }
 
   /// Phương thức GET
   Future<dynamic> get(String endpoint) async {
-    final url = Uri.parse('$baseUrl$endpoint');
     try {
-      final response = await http.get(url);
+      final response = await _dio.get(endpoint);
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Error GET: $e');
@@ -18,13 +30,8 @@ class ApiService {
 
   /// Phương thức POST
   Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
-    final url = Uri.parse('$baseUrl$endpoint');
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
+      final response = await _dio.post(endpoint, data: jsonEncode(body));
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Error POST: $e');
@@ -33,13 +40,8 @@ class ApiService {
 
   /// Phương thức PUT
   Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
-    final url = Uri.parse('$baseUrl$endpoint');
     try {
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
+      final response = await _dio.put(endpoint, data: jsonEncode(body));
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Error PUT: $e');
@@ -48,9 +50,8 @@ class ApiService {
 
   /// Phương thức DELETE
   Future<dynamic> delete(String endpoint) async {
-    final url = Uri.parse('$baseUrl$endpoint');
     try {
-      final response = await http.delete(url);
+      final response = await _dio.delete(endpoint);
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Error DELETE: $e');
@@ -58,13 +59,17 @@ class ApiService {
   }
 
   /// Xử lý phản hồi HTTP
-  dynamic _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return jsonDecode(response.body);
+  dynamic _handleResponse(Response response) {
+    if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+      return response.data;
     } else {
-      throw Exception(
-        'HTTP Error: ${response.statusCode}, Body: ${response.body}',
-      );
+      throw Exception('HTTP Error: ${response.statusCode}, Body: ${response.data}');
     }
+  }
+
+  /// Kiểm tra cookie đã lưu
+  Future<List<Cookie>> getCookies(String url) async {
+    final uri = Uri.parse(url);
+    return await _cookieJar.loadForRequest(uri);
   }
 }

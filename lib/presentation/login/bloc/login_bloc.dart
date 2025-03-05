@@ -1,16 +1,19 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tunezmusic/core/configs/globalSingleton/authManager.dart';
 import 'package:tunezmusic/core/lib/decode_token.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_event.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_state.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
+  final AuthManager auth=AuthManager();
   final ApiService apiService;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -20,36 +23,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<SignInWithFacebookEvent>(_onSignInWithFacebook);
   }
 
-  // Xử lý sự kiện đăng nhập email
   Future<void> _onLoginByEmail(
     LoginEmailEvent event,
     Emitter<LoginState> emit,
   ) async {
     emit(LoginEmailLoadingState());
     try {
-      // Đăng nhập Firebase
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential = await _auth.signInWithEmailAndPassword(
         email: event.email,
         password: event.password,
       );
-
-      if (userCredential.user == null) {
-        emit(
-          LoginErrorState(
-            "Đăng nhập không thành công, tài khoản không tồn tại.",
-          ),
-        );
-        return;
+      final idToken = await userCredential.user?.getIdToken();
+      if (idToken != null) {
+        await handleLoginResponseByServer(idToken, emit);
+      } else {
+        emit(LoginErrorState("Không thể lấy ID Token."));
       }
-
-      // Lấy Firebase ID Token
-      String? idToken = await userCredential.user?.getIdToken();
-
-      // Gọi hàm xử lý đăng nhập Firebase
-      await handleLoginResponseByServer(idToken!, emit, (errorMessage) {
-        LoginErrorState((errorMessage));
-      });
     } catch (e) {
       emit(LoginErrorState("Lỗi khi đăng nhập: ${e.toString()}"));
     }
@@ -59,29 +48,24 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     SignInWithGoogleEvent event,
     Emitter<LoginState> emit,
   ) async {
+    emit(LoginGoogleLoadingState());
     try {
-      emit(LoginGoogleLoadingState());
-
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
         emit(LoginGoogleErrorState("Người dùng đã hủy đăng nhập"));
         return;
       }
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
       );
-
-      final UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
-      String idToken = await userCredential.user?.getIdToken() ?? '';
-      await handleLoginResponseByServer(idToken, emit, (errorMessage) {
-        LoginGoogleErrorState((errorMessage));
-      });
+      final userCredential = await _auth.signInWithCredential(credential);
+      final idToken = await userCredential.user?.getIdToken();
+      if (idToken != null) {
+        await handleLoginResponseByServer(idToken, emit);
+      } else {
+        emit(LoginGoogleErrorState("Không thể lấy ID Token."));
+      }
     } catch (error) {
       emit(LoginGoogleErrorState(error.toString()));
     }
@@ -91,38 +75,33 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     SignInWithFacebookEvent event,
     Emitter<LoginState> emit,
   ) async {
+    emit(LoginFacebookLoadingState());
     try {
-      emit(LoginFacebookLoadingState());
-
-      final LoginResult loginResult = await FacebookAuth.instance.login();
-      if (loginResult.status == LoginStatus.success) {
-        final AccessToken? accessToken = loginResult.accessToken;
-        if (accessToken != null) {
-          final OAuthCredential facebookAuthCredential =
-              FacebookAuthProvider.credential(accessToken.tokenString);
-
-          try {
-            final UserCredential userCredential =
-                await _auth.signInWithCredential(facebookAuthCredential);
-            String idToken = await userCredential.user?.getIdToken() ?? '';
-            await handleLoginResponseByServer(idToken, emit, (errorMessage) {
-              LoginFacebookErrorState((errorMessage));
-            });
-          } on FirebaseAuthException catch (e) {
-            if (e.code == 'account-exists-with-different-credential') {
-              await _handleDifferentCredentialCase(e, emit);
-            } else {
-              emit(LoginFacebookErrorState("Lỗi FirebaseAuth: ${e.message}"));
-            }
-          }
+      final loginResult = await FacebookAuth.instance.login();
+      if (loginResult.status != LoginStatus.success ||
+          loginResult.accessToken == null) {
+        emit(LoginFacebookErrorState("Đăng nhập Facebook thất bại."));
+        return;
+      }
+      final credential = FacebookAuthProvider.credential(
+          loginResult.accessToken!.tokenString);
+      try {
+        final userCredential = await _auth.signInWithCredential(credential);
+        final idToken = await userCredential.user?.getIdToken();
+        if (idToken != null) {
+          await handleLoginResponseByServer(idToken, emit);
         } else {
-          emit(LoginFacebookErrorState(
-              "Không lấy được AccessToken từ Facebook"));
+          emit(LoginFacebookErrorState("Không thể lấy ID Token."));
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'account-exists-with-different-credential') {
+          await _handleDifferentCredentialCase(e, emit);
+        } else {
+          emit(LoginFacebookErrorState("Lỗi FirebaseAuth: ${e.message}"));
         }
       }
     } catch (error) {
-      emit(LoginFacebookErrorState(
-          "Lỗi đăng nhập Facebook: ${error.toString()}"));
+      emit(LoginFacebookErrorState("Lỗi đăng nhập Facebook: ${error.toString()}"));
     }
   }
 
@@ -130,107 +109,65 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     FirebaseAuthException e,
     Emitter<LoginState> emit,
   ) async {
-    if (kDebugMode) {
-      print("dasdsadsa");
-    }
-    AuthCredential? credential = e.credential;
-    String email = e.email.toString();
-    if (kDebugMode) {
-      print(email);
-    }
-    User? currentUser = FirebaseAuth.instance.currentUser;
-
-    if (kDebugMode) {
-      print("Credential: $credential");
-      print("Current User: $currentUser");
+    final email = e.email ?? '';
+    final credential = e.credential;
+    if (email.isEmpty || credential == null) {
+      emit(LoginFacebookErrorState("Không thể xử lý tài khoản khác nền tảng."));
+      return;
     }
 
-    if (currentUser == null) {
-      try {
-        final res =
-            await apiService.get("users/getUserCustomToken?email=$email");
-        if (kDebugMode) {
-          print(res);
-        }
-        if (res['status'] == 200) {
-          if (res.containsKey('token') && res['token'] != null) {
-            String token = res['token']; // Truy cập trực tiếp `token`
-
-            UserCredential userCredential =
-                await FirebaseAuth.instance.signInWithCustomToken(token);
-            User? currentUser = userCredential.user;
-
-            if (currentUser != null) {
-              if (kDebugMode) {
-                print("Đăng nhập bằng token thành công!");
-              }
-              await currentUser.linkWithCredential(credential!);
-              String idToken = await currentUser.getIdToken() ?? '';
-              await handleLoginResponseByServer(idToken, emit, (errorMessage) {
-                emit(LoginFacebookErrorState(errorMessage));
-              });
-            }
-          } else {
-            emit(LoginFacebookErrorState(
-                "Lỗi: Không tìm thấy token trong phản hồi API"));
-          }
+    try {
+      final res = await apiService.get("users/getUserCustomToken?email=$email");
+      if (res['status'] == 200 && res['token'] != null) {
+        final userCredential = await _auth.signInWithCustomToken(res['token']);
+        final currentUser = userCredential.user;
+        if (currentUser != null) {
+          await currentUser.linkWithCredential(credential);
+          final idToken = await currentUser.getIdToken();
+          await handleLoginResponseByServer(idToken!, emit);
         } else {
-          emit(LoginFacebookErrorState(
-              "Lỗi: API trả về trạng thái ${res['status']}"));
+          emit(LoginFacebookErrorState("Lỗi liên kết tài khoản."));
         }
-      } catch (error) {
-        emit(LoginFacebookErrorState(
-            "Lỗi liên kết tài khoản: ${error.toString()}"));
+      } else {
+        emit(LoginFacebookErrorState("Lỗi: API không trả về token hợp lệ."));
       }
-    } else {
-      emit(LoginFacebookErrorState("Không có người dùng nào đang đăng nhập."));
+    } catch (error) {
+      emit(LoginFacebookErrorState("Lỗi liên kết tài khoản: ${error.toString()}"));
     }
   }
 
-  // Xử lý phản hồi từ server sau khi gửi ID Token Firebase
   Future<void> handleLoginResponseByServer(
     String idToken,
     Emitter<LoginState> emit,
-    Function(String) onError, // Thêm callback xử lý lỗi
   ) async {
     try {
-      if (kDebugMode) {
-        print(idToken);
-      }
       final res = await apiService.post('users/login', {'idToken': idToken});
-
-      if (kDebugMode) {
-        print("API Response: ${jsonEncode(res)}");
-      }
-
       if (res['success'] == true) {
-        String firebaseToken = res['firebaseToken'] ?? '';
-
-        // Giải mã JWT để lấy userId
-        String userId = extractUserIdFromToken(firebaseToken);
-
-        // Lưu vào SharedPreferences
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', firebaseToken);
-        await prefs.setString('userId', userId);
-
-        emit(LoginCompletedState());
-      } else {
-        if (res['message'] == "Email not verified") {
-          emit(DoVerifiedLoginState());
-          return;
+        if (kDebugMode) {
+          print('Đăng nhập thành công!');
         }
-        onError("Lỗi: ${res['message']}"); // Gọi callback để xử lý lỗi
-      }
-    } catch (e) {
-      // Kiểm tra xem e có chứa JSON không
-      if (e is FormatException) {
-        onError("Lỗi định dạng phản hồi từ server: ${e.message}");
-      } else if (e.toString().contains("Email not verified")) {
+         final cookies = await apiService.getCookies(dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT']??'');
+          if (kDebugMode) {
+            print('Cookies hiện tại: $cookies');
+          }
+          final userData = await apiService.get('users/getUserCustomToken');
+          if (kDebugMode) {
+            print('Dữ liệu user: $userData');
+          }
+        final token = userData['token'] ?? '';
+        final userId = extractUserIdFromToken(token);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        await prefs.setString('userId', userId);
+        auth.login();
+        emit(LoginCompletedState());
+      } else if (res['message'] == "Email not verified") {
         emit(DoVerifiedLoginState());
       } else {
-        onError("Lỗi khi xử lý phản hồi từ server: ${e.toString()}");
+        emit(LoginErrorState("Lỗi: ${res['message']}"));
       }
+    } catch (e) {
+      emit(LoginErrorState("Lỗi xử lý phản hồi từ server: ${e.toString()}"));
     }
   }
 }

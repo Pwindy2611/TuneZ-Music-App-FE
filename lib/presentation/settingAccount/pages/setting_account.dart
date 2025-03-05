@@ -4,31 +4,20 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/common/widgets/appBar/app_Bar_title.dart';
 import 'package:tunezmusic/common/widgets/button/light_button.dart';
+import 'package:tunezmusic/core/configs/globalSingleton/authManager.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/main/pages/mainpage.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
 
 class SettingAccountPage extends StatelessWidget {
-  const SettingAccountPage({super.key});
+  SettingAccountPage({super.key});
+  final AuthManager auth= AuthManager();
 
  Future<void> _signOut(BuildContext context) async {
   try {
-     final GoogleSignIn googleSignIn = GoogleSignIn();
-    // Đăng xuất khỏi Firebase
-    await googleSignIn.signOut();
-    await FirebaseAuth.instance.signOut();
-    
-
-    // Xóa thông tin trong SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove("userId");
-    await prefs.remove("token");
-
-    // Chuyển hướng đến SplashPage
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const SplashPage()),
-    );
+    if(auth.canLogout()==true){
+      auth.logout(context);
+    }
   } catch (e) {
     print("Lỗi đăng xuất: $e");
   }
