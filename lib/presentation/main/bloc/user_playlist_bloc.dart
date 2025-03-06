@@ -4,18 +4,18 @@ import 'user_playlist_event.dart';
 import 'user_playlist_state.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 
-class UserPlaylistBloc extends Bloc<UserPlaylistEvent, UserPlaylistState> {
+class HomePlaylistBloc extends Bloc<HomePlaylistEvent, HomePlaylistState> {
   final ApiService apiService;
 
-  UserPlaylistBloc(this.apiService) : super(UserPlaylistLoading()) {
-    on<FetchUserPlaylistEvent>(_fetchUserPlaylist);
+  HomePlaylistBloc(this.apiService) : super(HomePlaylistLoading()) {
+    on<FetchHomePlaylistEvent>(_fetchHomePlaylist);
   }
 
-  Future<void> _fetchUserPlaylist(
-      FetchUserPlaylistEvent event, Emitter<UserPlaylistState> emit) async {
+  Future<void> _fetchHomePlaylist(
+      FetchHomePlaylistEvent event, Emitter<HomePlaylistState> emit) async {
     try {
       final response = await apiService
-          .post("musics/generateUserPlaylist", {"userId": event.userId});
+          .get("playlists/generateUserPlaylist?userId=${event.userId}");
 
       if (kDebugMode) {
         print("Response from API: $response");
@@ -29,20 +29,20 @@ class UserPlaylistBloc extends Bloc<UserPlaylistEvent, UserPlaylistState> {
           final Map<String, List<dynamic>> artistPlaylists =
               Map<String, List<dynamic>>.from(response['musics']['playlistsByArtist']);
 
-          emit(UserPlaylistLoaded(artistPlaylists));
+          emit(HomePlaylistLoaded(artistPlaylists));
         } else {
-          emit(UserPlaylistError(
+          emit(HomePlaylistError(
               "API trả về dữ liệu không hợp lệ: 'musics.playlistsByArtist' không đúng định dạng"));
         }
       } else {
-        emit(UserPlaylistError(
+        emit(HomePlaylistError(
             "API trả về lỗi: ${response['message'] ?? 'Không rõ lỗi'}"));
       }
     } catch (e) {
       if (kDebugMode) {
         print("generateUserPlaylist Error: $e");
       }
-      emit(UserPlaylistError(e.toString()));
+      emit(HomePlaylistError(e.toString()));
     }
   }
 }

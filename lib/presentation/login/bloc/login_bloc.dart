@@ -13,7 +13,7 @@ import 'package:tunezmusic/presentation/login/bloc/login_event.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final AuthManager auth=AuthManager();
+  final AuthManager auth = AuthManager();
   final ApiService apiService;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -35,7 +35,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
       final idToken = await userCredential.user?.getIdToken();
       if (idToken != null) {
-        await handleLoginResponseByServer(idToken, emit);
+        await handleLoginResponseByServer(
+            idToken, emit);
       } else {
         emit(LoginErrorState("Không thể lấy ID Token."));
       }
@@ -62,7 +63,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final userCredential = await _auth.signInWithCredential(credential);
       final idToken = await userCredential.user?.getIdToken();
       if (idToken != null) {
-        await handleLoginResponseByServer(idToken, emit);
+        await handleLoginResponseByServer(
+            idToken, emit);
       } else {
         emit(LoginGoogleErrorState("Không thể lấy ID Token."));
       }
@@ -83,13 +85,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emit(LoginFacebookErrorState("Đăng nhập Facebook thất bại."));
         return;
       }
-      final credential = FacebookAuthProvider.credential(
-          loginResult.accessToken!.tokenString);
+      final credential =
+          FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
       try {
         final userCredential = await _auth.signInWithCredential(credential);
         final idToken = await userCredential.user?.getIdToken();
         if (idToken != null) {
-          await handleLoginResponseByServer(idToken, emit);
+          await handleLoginResponseByServer(
+              idToken, emit);
         } else {
           emit(LoginFacebookErrorState("Không thể lấy ID Token."));
         }
@@ -101,7 +104,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         }
       }
     } catch (error) {
-      emit(LoginFacebookErrorState("Lỗi đăng nhập Facebook: ${error.toString()}"));
+      emit(LoginFacebookErrorState(
+          "Lỗi đăng nhập Facebook: ${error.toString()}"));
     }
   }
 
@@ -124,7 +128,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         if (currentUser != null) {
           await currentUser.linkWithCredential(credential);
           final idToken = await currentUser.getIdToken();
-          await handleLoginResponseByServer(idToken!, emit);
+          await handleLoginResponseByServer(
+              idToken!, emit);
         } else {
           emit(LoginFacebookErrorState("Lỗi liên kết tài khoản."));
         }
@@ -132,7 +137,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emit(LoginFacebookErrorState("Lỗi: API không trả về token hợp lệ."));
       }
     } catch (error) {
-      emit(LoginFacebookErrorState("Lỗi liên kết tài khoản: ${error.toString()}"));
+      emit(LoginFacebookErrorState(
+          "Lỗi liên kết tài khoản: ${error.toString()}"));
     }
   }
 
@@ -141,32 +147,49 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     try {
-      final res = await apiService.post('users/login', {'idToken': idToken});
+      final res = await apiService.post(
+        'users/login',
+        {'idToken': idToken},
+      );
+      if (kDebugMode) {
+        print(res);
+      }
       if (res['success'] == true) {
         if (kDebugMode) {
           print('Đăng nhập thành công!');
         }
-         final cookies = await apiService.getCookies(dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT']??'');
-          if (kDebugMode) {
-            print('Cookies hiện tại: $cookies');
-          }
-          final userData = await apiService.get('users/getUserCustomToken');
-          if (kDebugMode) {
-            print('Dữ liệu user: $userData');
-          }
+        final cookies = await apiService
+            .getCookies(dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '');
+        if (kDebugMode) {
+          print('Cookies hiện tại: $cookies');
+        }
+        final userData = await apiService.get('users/getUserCustomToken');
+        if (kDebugMode) {
+          print('Dữ liệu user: $userData');
+        }
         final token = userData['token'] ?? '';
         final userId = extractUserIdFromToken(token);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         await prefs.setString('userId', userId);
         auth.login();
+        if (res['isFirstTimeLogin'] == true) {
+        emit(NewAccountState());
+        return;
+      }
         emit(LoginCompletedState());
-      } else if (res['message'] == "Email not verified") {
-        emit(DoVerifiedLoginState());
-      } else {
+      }  else {
         emit(LoginErrorState("Lỗi: ${res['message']}"));
       }
     } catch (e) {
+      final errorString = e.toString();
+      if (kDebugMode) {
+        print(errorString);
+      }
+      if (errorString.contains("message: Email not verified")) {
+        emit(DoVerifiedLoginState());
+        return;
+      }
       emit(LoginErrorState("Lỗi xử lý phản hồi từ server: ${e.toString()}"));
     }
   }

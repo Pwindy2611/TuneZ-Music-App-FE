@@ -1,13 +1,13 @@
-abstract class UserPlaylistState {}
+abstract class HomePlaylistState {}
 
-class UserPlaylistLoading extends UserPlaylistState {}
+class HomePlaylistLoading extends HomePlaylistState {}
 
-class UserPlaylistLoaded extends UserPlaylistState {
+class HomePlaylistLoaded extends HomePlaylistState {
   final Map<String, List<dynamic>> playlist;
-  UserPlaylistLoaded(this.playlist);
+  HomePlaylistLoaded(this.playlist);
 }
 
-class UserPlaylistError extends UserPlaylistState {
+class HomePlaylistError extends HomePlaylistState {
   final String message;
-  UserPlaylistError(this.message);
+  HomePlaylistError(this.message);
 }

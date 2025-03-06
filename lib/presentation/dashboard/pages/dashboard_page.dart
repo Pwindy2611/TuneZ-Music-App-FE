@@ -56,53 +56,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 }
-
-class Page1 extends StatefulWidget {
-  const Page1({super.key});
-
-  @override
-  State<Page1> createState() => _Page1State();
-}
-
-class _Page1State extends State<Page1> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<UserPlaylistBloc, UserPlaylistState>(
-      builder: (context, state) {
-        if (kDebugMode) {
-          print("Current state: $state");
-        }
-
-        if (state is UserPlaylistLoaded) {
-          if (kDebugMode) {
-            print("UserPlaylistLoaded: ${state.playlist}");
-          }
-
-          return Center(
-            child: Text(
-              "PlayList: ${state.playlist}",
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
-        else if (state is UserPlaylistError) {
-          if (kDebugMode) {
-            print("UserPlaylistError: ${state.message}");
-          } 
-          return Center(
-            child: Text(
-              "Error: ${state.message}",
-              style: TextStyle(color: Colors.red),
-            ),);
-        }
-        
-        // Trả về widget loading nếu state chưa được load
-        return const Center(child: CircularProgressIndicator());
-      },
-    );
-  }
-}
-
 class Page2 extends StatelessWidget {
   const Page2({super.key});
 

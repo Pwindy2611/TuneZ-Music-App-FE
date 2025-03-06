@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_theme.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 import 'package:tunezmusic/data/services/firebase_options.dart';
+import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_bloc.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/throwback_playlist_bloc.dart';
@@ -32,10 +33,11 @@ void main() async {
   runApp(
     MultiBlocProvider(
     providers: [
-      BlocProvider(create: (context) => UserPlaylistBloc(ApiService())),
+      BlocProvider(create: (context) => HomePlaylistBloc(ApiService())),
       BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => ThrowbackPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => LoginBloc(ApiService())),
+       BlocProvider(create: (context) => ArtistSelectionBloc(ApiService())),
     ],
     child:MainApp())
   );

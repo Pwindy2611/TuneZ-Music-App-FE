@@ -11,6 +11,7 @@ import "package:tunezmusic/core/configs/assets/app_images.dart";
 import "package:tunezmusic/core/configs/assets/app_vectors.dart";
 import "package:tunezmusic/core/configs/theme/app_colors.dart";
 import "package:flutter/material.dart";
+import "package:tunezmusic/presentation/artistSelection/pages/ArtistSelectionPage.dart";
 import "package:tunezmusic/presentation/login/bloc/login_bloc.dart";
 import "package:tunezmusic/presentation/login/bloc/login_event.dart";
 import "package:tunezmusic/presentation/login/bloc/login_state.dart";
@@ -51,22 +52,27 @@ class LoginOptionPage extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (_) => MainPage()),
           );
-        } else if (state is LoginErrorState) {
+        } 
+        else if (state is NewAccountState){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => ArtistSelectionPage()),
+          );
+        }else if (state is LoginErrorState) {
           if (kDebugMode) {
             print(state.message);
           }
         } else if (state is LoginGoogleErrorState ||
             state is LoginFacebookErrorState) {
-             if(state is LoginGoogleErrorState){
-               if (kDebugMode) {
-                 print(state.message);
-               }
-             }
-             else if(state is LoginFacebookErrorState){
-               if (kDebugMode) {
-                 print(state.message);
-               }
-             }
+          if (state is LoginGoogleErrorState) {
+            if (kDebugMode) {
+              print(state.message);
+            }
+          } else if (state is LoginFacebookErrorState) {
+            if (kDebugMode) {
+              print(state.message);
+            }
+          }
           Navigator.of(context, rootNavigator: true).pop();
         }
       },

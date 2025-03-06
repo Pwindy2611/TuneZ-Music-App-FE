@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:marquee/marquee.dart';
+import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/artistAndPodcastersColumn.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/recentlyPlayed.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
@@ -96,7 +97,7 @@ class _homeScreenState extends State<HomeScreen> {
                     }
                     // Trả về widget mặc định nếu state không phải UserPlaylistLoaded
                     // Trả về widget loading nếu state chưa được load
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                   },
                 ),
                 const Padding(
@@ -112,13 +113,13 @@ class _homeScreenState extends State<HomeScreen> {
                               fontFamily: "SpotifyCircularBold"),
                           textAlign: TextAlign.left),
                     )),
-                BlocBuilder<UserPlaylistBloc, UserPlaylistState>(
+                BlocBuilder<HomePlaylistBloc, HomePlaylistState>(
                   builder: (context, state) {
                     if (kDebugMode) {
                       print("Current state: $state");
                     }
 
-                    if (state is UserPlaylistLoaded) {
+                    if (state is HomePlaylistLoaded) {
                       if (kDebugMode) {
                         print("UserPlaylistLoaded: ${state.playlist}");
                       }
@@ -144,7 +145,7 @@ class _homeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       );
-                    } else if (state is UserPlaylistError) {
+                    } else if (state is HomePlaylistError) {
                       if (kDebugMode) {
                         print("UserPlaylistError: ${state.message}");
                       }
@@ -156,7 +157,7 @@ class _homeScreenState extends State<HomeScreen> {
                       );
                     }
 
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                   },
                 ),
                 const Padding(

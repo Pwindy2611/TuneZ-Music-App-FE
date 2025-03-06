@@ -48,3 +48,5 @@ class LoginGoogleErrorState extends LoginState {
 }
 
 class DoVerifiedLoginState extends LoginState {}
+
+class NewAccountState extends LoginState {}

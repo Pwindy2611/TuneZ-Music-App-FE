@@ -12,6 +12,9 @@ class ApiService {
     _dio = Dio(BaseOptions(
       baseUrl: dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '',
       headers: {'Content-Type': 'application/json'},
+      validateStatus: (status) {
+        return status != null && status <= 500; // Chỉ ném lỗi nếu status >= 500
+      },
     ));
 
     _cookieJar = CookieJar();
@@ -60,10 +63,13 @@ class ApiService {
 
   /// Xử lý phản hồi HTTP
   dynamic _handleResponse(Response response) {
-    if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+    if (response.statusCode != null &&
+        response.statusCode! >= 200 &&
+        response.statusCode! < 300) {
       return response.data;
     } else {
-      throw Exception('HTTP Error: ${response.statusCode}, Body: ${response.data}');
+      throw Exception(
+          'HTTP Error: ${response.statusCode}, Body: ${response.data}');
     }
   }
 

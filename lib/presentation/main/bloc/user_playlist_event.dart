@@ -1,6 +1,6 @@
-abstract class UserPlaylistEvent {}
+abstract class HomePlaylistEvent {}
 
-class FetchUserPlaylistEvent extends UserPlaylistEvent {
+class FetchHomePlaylistEvent extends HomePlaylistEvent {
   final String userId;
-  FetchUserPlaylistEvent(this.userId);
+  FetchHomePlaylistEvent(this.userId);
 }

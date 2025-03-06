@@ -8,6 +8,7 @@ import 'package:tunezmusic/common/widgets/input/input_password.dart';
 import 'package:tunezmusic/common/widgets/input/input_intro.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
+import 'package:tunezmusic/presentation/artistSelection/pages/ArtistSelectionPage.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_bloc.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_event.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_state.dart';
@@ -110,6 +111,12 @@ class _LoginPageState extends State<LoginPage> {
         } else if (state is LoginErrorState) {
           isLoading.value = false;
           showForgotPassword.value = true;
+        } else if (state is NewAccountState){
+          isLoading.value = false;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => ArtistSelectionPage()),
+          );
         }
       },
       child: Scaffold(

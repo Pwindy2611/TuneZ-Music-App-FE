@@ -58,18 +58,19 @@ class _MainPageState extends State<MainPage> {
     if (kDebugMode) print('Saved User ID: $savedUserId');
 
     if (savedUserId != null && savedUserId.isNotEmpty) {
-      final userPlaylistBloc = context.read<UserPlaylistBloc>();
-      final recentPlaylistBloc = context.read<RecentPlaylistBloc>();
-      final throwbackPlaylistBloc = context.read<ThrowbackPlaylistBloc>();
+      _logoutAndRedirect();
+      final userPlaylistBloc = context.read<HomePlaylistBloc>();
+      // final recentPlaylistBloc = context.read<RecentPlaylistBloc>();
+      // final throwbackPlaylistBloc = context.read<ThrowbackPlaylistBloc>();
 
-      userPlaylistBloc.add(FetchUserPlaylistEvent(savedUserId));
-      recentPlaylistBloc.add(FetchRecentPlaylistEvent(savedUserId));
-      throwbackPlaylistBloc.add(FetchThrowbackPlaylistEvent(savedUserId));
+      userPlaylistBloc.add(FetchHomePlaylistEvent(savedUserId));
+      // recentPlaylistBloc.add(FetchRecentPlaylistEvent(savedUserId));
+      // throwbackPlaylistBloc.add(FetchThrowbackPlaylistEvent(savedUserId));
 
       await _waitForBlocsToComplete([
         userPlaylistBloc,
-        recentPlaylistBloc,
-        throwbackPlaylistBloc
+        // recentPlaylistBloc,
+        // throwbackPlaylistBloc
       ]);
     }
 
@@ -86,14 +87,10 @@ class _MainPageState extends State<MainPage> {
 
     void checkStates() {
       for (final bloc in blocs) {
-        if (bloc.state is RecentPlaylistLoading ||
-            bloc.state is UserPlaylistLoading ||
-            bloc.state is ThrowbackPlaylistLoading) {
+        if (bloc.state is HomePlaylistLoading) {
           return;
         }
-        if (bloc.state is RecentPlaylistError ||
-            bloc.state is UserPlaylistError ||
-            bloc.state is ThrowbackPlaylistError) {
+        if (bloc.state is HomePlaylistError) {
           _logoutAndRedirect();
           return;
         }
@@ -109,9 +106,9 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _logoutAndRedirect() async {
-    if(auth.canLogout()==true){
+
       auth.logout(context);
-    }
+    
   }
 
   void _onItemTapped(int index) {
