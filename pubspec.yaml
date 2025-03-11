@@ -27,7 +27,9 @@ dependencies:
   dio: ^5.4.0
   cookie_jar: ^4.0.5
   dio_cookie_manager: ^3.1.0
-
+  video_player: ^2.9.3
+  chewie: ^1.10.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -41,6 +43,7 @@ flutter:
   - assets/fonts/
   - assets/images/
   - assets/vectors/
+  - assets/videos/
   - .env
   fonts:
     - family: Satoshi

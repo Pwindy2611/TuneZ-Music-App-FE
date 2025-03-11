@@ -87,7 +87,7 @@ class _PremiumWidgetState extends State<PremiumWidget> {
                               Row(
                                 children: [
                                   SvgPicture.asset(
-                                    AppVectors.logoBlack,
+                                    AppVectors.logoTuneZWhite,
                                     width: 40,
                                     height: 40,
                                   ),

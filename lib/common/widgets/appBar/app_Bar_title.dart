@@ -13,7 +13,7 @@ class TitleAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleSize,
     this.titleColor,
     this.bgColor,
-    this.onBackPressed, // Nhận giá trị callback
+    required this.onBackPressed, // Nhận giá trị callback
     super.key,
   });
 
@@ -33,10 +33,7 @@ class TitleAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: bgColor ?? Colors.transparent,
       elevation: 0,
       leading: BackGreyAppButton(
-        onPressed: onBackPressed ?? () =>(){
-          Navigator.pop(context);
-          FocusScope.of(context).unfocus();
-          Future.delayed(const Duration(milliseconds: 300));} , // Mặc định quay lại trang trước
+        onPressed: onBackPressed!, // Mặc định quay lại trang trước
         size: 50,
         colors: null,
         btnColor: null,

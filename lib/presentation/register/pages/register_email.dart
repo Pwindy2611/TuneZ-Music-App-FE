@@ -87,6 +87,10 @@ class _RegisterPageState extends State<RegisterPage> {
             titleColor: Colors.white,
             titleSize: 16,
             bgColor: null,
+              onBackPressed: () {
+          Navigator.pop(context);
+          FocusScope.of(context).unfocus();
+          }
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),

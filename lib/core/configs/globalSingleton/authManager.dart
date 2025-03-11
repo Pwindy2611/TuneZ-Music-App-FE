@@ -23,23 +23,27 @@ class AuthManager {
     return isLoggedIn;
   }
 
-  void  logout(context) async {
-   try {
-     final GoogleSignIn googleSignIn = GoogleSignIn();
-    // Đăng xuất khỏi Firebase
-    await googleSignIn.signOut();
-    await FirebaseAuth.instance.signOut();
+void logout(BuildContext context) async {
+  try {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
     
+    if (await googleSignIn.isSignedIn()) { // Kiểm tra nếu đã đăng nhập
+      await googleSignIn.signOut();
+    }
 
-    // Xóa thông tin trong SharedPreferences
+    await FirebaseAuth.instance.signOut();
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
 
-    // Chuyển hướng đến SplashPage
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const SplashPage()),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SplashPage()),
+        );
+      }
+    });
   } catch (e) {
     print("Lỗi đăng xuất: $e");
   }

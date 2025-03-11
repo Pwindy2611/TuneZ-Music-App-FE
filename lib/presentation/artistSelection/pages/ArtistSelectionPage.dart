@@ -71,7 +71,6 @@ class _ArtistSelectionPageState extends State<ArtistSelectionPage> {
                   .toList();
               filteredList = List.from(artistList);
             }
-
             bool hasMore =
                 displayedItems < filteredList.length && displayedItems >= 10;
 

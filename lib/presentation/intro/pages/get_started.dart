@@ -34,10 +34,11 @@ class GetStartedPage extends StatelessWidget {
                    Align(
                       alignment: Alignment.center,
                       child: SvgPicture.asset(
-                      AppVectors.logoBlack,
+                      AppVectors.logoTuneZWhite,
                       width: 100,
                       height: 100
                     )),
+                    SizedBox(height:5,),
                      Text(
                       'Hàng triệu bài hát.',
                       style: TextStyle(
@@ -47,7 +48,7 @@ class GetStartedPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Miễn phí trên Spotify.',
+                      'Miễn phí trên TuneZ.',
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Colors.white,

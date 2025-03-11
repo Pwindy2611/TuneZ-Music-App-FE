@@ -91,7 +91,7 @@ class LoginOptionPage extends StatelessWidget {
                 Align(
                   alignment: Alignment.center,
                   child: SvgPicture.asset(
-                    AppVectors.logoBlack,
+                    AppVectors.logoTuneZWhite,
                     width: 100,
                     height: 100,
                   ),

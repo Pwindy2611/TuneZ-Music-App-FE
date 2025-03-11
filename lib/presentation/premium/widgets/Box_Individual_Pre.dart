@@ -29,7 +29,7 @@ class BuildPremiumIndividualFeatures extends StatelessWidget {
                   Row(
                     children: [
                       SvgPicture.asset(
-                        AppVectors.logoBlack,
+                        AppVectors.logoTuneZWhite,
                         width: 30,
                         height: 30,
                       ),

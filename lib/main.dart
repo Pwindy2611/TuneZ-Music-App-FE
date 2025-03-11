@@ -37,10 +37,10 @@ void main() async {
       BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => ThrowbackPlaylistBloc(ApiService())),
       BlocProvider(create: (context) => LoginBloc(ApiService())),
-       BlocProvider(create: (context) => ArtistSelectionBloc(ApiService())),
+      BlocProvider(create: (context) => ArtistSelectionBloc(ApiService())),
     ],
     child:MainApp())
-  );
+  ); 
 }
 
 class MainApp extends StatelessWidget {
@@ -56,3 +56,4 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+ 

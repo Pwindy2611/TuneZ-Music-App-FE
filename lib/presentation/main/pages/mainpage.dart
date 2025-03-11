@@ -34,12 +34,12 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   int? _tappedIndex;
-  bool isLoading = true;
+  bool isLoading = false;
   String? userId;
   final AuthManager auth=AuthManager();
 
   static final List<Widget> _widgetOptions = [
-    const HomeWidget(),
+    const DashboardWidget(),
     const SearchWidget(),
     const LibraryWidget(),
     const PremiumWidget(),
@@ -58,7 +58,6 @@ class _MainPageState extends State<MainPage> {
     if (kDebugMode) print('Saved User ID: $savedUserId');
 
     if (savedUserId != null && savedUserId.isNotEmpty) {
-      _logoutAndRedirect();
       final userPlaylistBloc = context.read<HomePlaylistBloc>();
       // final recentPlaylistBloc = context.read<RecentPlaylistBloc>();
       // final throwbackPlaylistBloc = context.read<ThrowbackPlaylistBloc>();
@@ -106,8 +105,11 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _logoutAndRedirect() async {
-
-      auth.logout(context);
+    if(auth.canLogout()==true)
+    {
+       auth.logout(context);
+    }
+     
     
   }
 
@@ -152,6 +154,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.darkBackground,
       body: isLoading
           ? Center(

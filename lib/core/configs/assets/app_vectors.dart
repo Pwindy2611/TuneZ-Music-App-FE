@@ -2,8 +2,8 @@ class AppVectors {
   static const String basePath = 'assets/vectors/';
   static const String format ='.svg';
 
-  static const String logo = '${basePath}spotify_logo$format';
-  static const String logoBlack = '${basePath}spotify_logo_white$format';
+  static const String logo = '${basePath}tunez_logo$format';
+  static const String logoTuneZWhite = '${basePath}tunez_logo_white$format';
   static const String iconHome = '${basePath}icon_home$format';
   static const String iconLibrary = '${basePath}icon_library$format';
   static const String iconSearch = '${basePath}icon_search$format';

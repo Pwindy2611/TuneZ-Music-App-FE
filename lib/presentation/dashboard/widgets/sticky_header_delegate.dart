@@ -3,16 +3,16 @@ import 'package:tunezmusic/core/configs/assets/app_images.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/common/widgets/button/cate_home_button.dart';
 
-class StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+class StickyDashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final GlobalKey<ScaffoldState> _scaffoldKey;
   final ValueNotifier<int> _selectedIndexNotifier;
 
-  StickyHeaderDelegate({required GlobalKey<ScaffoldState> scaffoldKey, required ValueNotifier<int> selectedIndexNotifier})
+  StickyDashboardHeaderDelegate({required GlobalKey<ScaffoldState> scaffoldKey, required ValueNotifier<int> selectedIndexNotifier})
       : _scaffoldKey = scaffoldKey,
         _selectedIndexNotifier = selectedIndexNotifier;
 
   @override
-  double get maxExtent => 120.0;
+  double get maxExtent => 100.0;
   @override
   double get minExtent => 95.0;
 
@@ -20,7 +20,7 @@ class StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: AppColors.darkBackground,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Align(
         alignment: Alignment.bottomLeft,
         child: Row(

@@ -8,14 +8,14 @@ import 'package:tunezmusic/presentation/dashboard/widgets/sticky_header_delegate
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/user_playlist_state.dart';
 
-class HomeWidget extends StatefulWidget {
-  const HomeWidget({super.key});
+class DashboardWidget extends StatefulWidget {
+  const DashboardWidget({super.key});
 
   @override
-  State<HomeWidget> createState() => _HomeWidgetState();
+  State<DashboardWidget> createState() => _DashboardWidgetState();
 }
 
-class _HomeWidgetState extends State<HomeWidget> {
+class _DashboardWidgetState extends State<DashboardWidget> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ValueNotifier<int> _selectedIndexNotifier = ValueNotifier<int>(0);
 
@@ -37,7 +37,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           // SliverPersistentHeader để tạo header sticky
           SliverPersistentHeader(
             pinned: true,
-            delegate: StickyHeaderDelegate(
+            delegate: StickyDashboardHeaderDelegate(
               scaffoldKey: _scaffoldKey,
               selectedIndexNotifier: _selectedIndexNotifier,
             ),

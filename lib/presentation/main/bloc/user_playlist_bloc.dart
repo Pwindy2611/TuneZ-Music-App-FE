@@ -15,7 +15,7 @@ class HomePlaylistBloc extends Bloc<HomePlaylistEvent, HomePlaylistState> {
       FetchHomePlaylistEvent event, Emitter<HomePlaylistState> emit) async {
     try {
       final response = await apiService
-          .get("playlists/generateUserPlaylist?userId=${event.userId}");
+          .get("playlists/generatePlaylist?userId=${event.userId}");
 
       if (kDebugMode) {
         print("Response from API: $response");
