@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:marquee/marquee.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/artistAndPodcastersColumn.dart';
+import 'package:tunezmusic/presentation/dashboard/widgets/recentPlaylistContainer.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/recentlyPlayed.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_state.dart';
@@ -36,83 +37,19 @@ class _homeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // TODO: Put all left and right paddings in this outer column
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 15),
-                        child: Text("Gần đây",
+                  const Padding(
+                      padding: EdgeInsets.only(
+                          top: 30, left: 15, right: 15, bottom: 15),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Text("Nghệ sĩ phổ biến",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25,
-                              color: Colors.white,
-                            )),
-                      ),
-                    ],
-                  ),
-                ),
-                BlocBuilder<RecentPlaylistBloc, RecentPlaylistState>(
-                  builder: (context, state) {
-                    if (kDebugMode) {
-                      print("Current state: $state");
-                    }
-
-                    if (state is RecentPlaylistLoaded) {
-                      if (kDebugMode) {
-                        print("UserPlaylistLoaded: ${state.playlist}");
-                      }
-                      return Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (int i = 0; i < state.playlist.length; i++)
-                                  ArtistAndPodcastersColumn(
-                                    name: state.playlist[i]['name'],
-                                    artist: state.playlist[i]['artist'],
-                                    image:
-                                        'https://i.scdn.co/image/ab67616d00001e02bf5cce5a0e1ed03a626bdd74',
-                                    borderRadius: 8,
-                                  ),
-                              ],
-                            ),
-                          ));
-                    } else if (state is RecentPlaylistError) {
-                      if (kDebugMode) {
-                        print("UserPlaylistError: ${state.message}");
-                      }
-                      return Center(
-                        child: Text(
-                          "Error: ${state.message}",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      );
-                    }
-                    // Trả về widget mặc định nếu state không phải UserPlaylistLoaded
-                    // Trả về widget loading nếu state chưa được load
-                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                  },
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                        top: 30, left: 15, right: 15, bottom: 15),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Text("Nghệ sĩ phổ biến",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25,
-                              color: Colors.white,
-                              fontFamily: "SpotifyCircularBold"),
-                          textAlign: TextAlign.left),
-                    )),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                                color: Colors.white,
+                                fontFamily: "SpotifyCircularBold"),
+                            textAlign: TextAlign.left),
+                      )),
                 BlocBuilder<HomePlaylistBloc, HomePlaylistState>(
                   builder: (context, state) {
                     if (kDebugMode) {
@@ -124,8 +61,7 @@ class _homeScreenState extends State<HomeScreen> {
                         print("UserPlaylistLoaded: ${state.playlist}");
                       }
 
-                      List<String> artistNames =
-                          state.playlist.keys.toList(); // Lấy danh sách nghệ sĩ
+                      List playList = state.playlist; 
 
                       return Padding(
                         padding: const EdgeInsets.only(left: 15, right: 15),
@@ -134,12 +70,12 @@ class _homeScreenState extends State<HomeScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: artistNames.map((artistName) {
-                              return RecentlyPlayed(
-                                name: artistName, // Tên nghệ sĩ
+                            children: playList.map((a) {
+                              return ArtistAndPodcastersColumn(
+                                name: a["title"], // Tên nghệ sĩ
                                 image:
-                                    'https://i.scdn.co/image/ab67616100005174579763c716425127661bda67',
-                                border_radius: 100,
+                                    a["coverImage"],
+                                borderRadius: 4,
                               );
                             }).toList(),
                           ),
@@ -160,46 +96,6 @@ class _homeScreenState extends State<HomeScreen> {
                     return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                   },
                 ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                        top: 15, left: 15, right: 15, bottom: 15),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Text(
-                        "Artists and Podcasters",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
-                            color: Colors.white,
-                            fontFamily: "SpotifyCircularBold"),
-                        textAlign: TextAlign.left,
-                        maxLines: 2,
-                      ),
-                    )),
-                // Padding(
-                //     padding: const EdgeInsets.only(left: 15, right: 15),
-                //     child: SingleChildScrollView(
-                //       scrollDirection: Axis.horizontal,
-                //       child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                //         crossAxisAlignment: CrossAxisAlignment.start,
-                //         children: [
-                //           for (int i = 0;
-                //               i < artistAndPodcastersItems.length;
-                //               i++)
-                //             artistAndPodcastersColumn(
-                //                 name: artistAndPodcastersItems[i]
-                //                     ['name'],
-                //                 image: artistAndPodcastersItems[i]
-                //                     ['image'],
-                //                 border_radius:
-                //                     artistAndPodcastersItems[i]
-                //                         ['border_radius'],
-                //                 artistAndPodcastersItems:
-                //                     artistAndPodcastersItems),
-                //         ],
-                //       ),
-                //     )),
                 const Padding(
                     padding: EdgeInsets.only(left: 15, right: 15),
                     child: SizedBox(height: 140, width: double.infinity))

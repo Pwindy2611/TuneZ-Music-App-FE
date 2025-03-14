@@ -4,7 +4,6 @@ import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 class ArtistAndPodcastersColumn extends StatefulWidget {
   final String image;
   final String name;
-  final String artist;
   final int borderRadius;
 
   const ArtistAndPodcastersColumn({
@@ -12,7 +11,6 @@ class ArtistAndPodcastersColumn extends StatefulWidget {
     required this.name,
     required this.image,
     required this.borderRadius,
-    required this.artist,
   });
 
   @override
@@ -35,7 +33,7 @@ class _ArtistAndPodcastersColumnState extends State<ArtistAndPodcastersColumn> {
             scale: isTapped ? 0.95 : 1.0, // Khi nhấn vào, ảnh sẽ to ra 1.1 lần
             duration: const Duration(milliseconds: 200),
             child: Padding(
-              padding: const EdgeInsets.only(left: 5, right: 5),
+              padding: const EdgeInsets.only(left: 8, right: 8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -60,15 +58,15 @@ class _ArtistAndPodcastersColumnState extends State<ArtistAndPodcastersColumn> {
                             softWrap: false,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis),
-                        Text(widget.artist,
-                            style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: AppColors.deFautLabelIcon),
-                            textAlign: TextAlign.left,
-                            softWrap: false,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis),
+                        // Text(widget.artist,
+                        //     style: const TextStyle(
+                        //         fontSize: 14,
+                        //         fontWeight: FontWeight.normal,
+                        //         color: AppColors.deFautLabelIcon),
+                        //     textAlign: TextAlign.left,
+                        //     softWrap: false,
+                        //     maxLines: 2,
+                        //     overflow: TextOverflow.ellipsis),
                       ],
                     ),
                   ),

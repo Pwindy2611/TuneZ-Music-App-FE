@@ -189,7 +189,8 @@ class _ArtistSelectionPageState extends State<ArtistSelectionPage> {
                         child: ButtonBottomDialog(
                           onPressed: () {
                             context.read<ArtistSelectionBloc>().add(
-                                  ArtistSelectionPostEvent(selectedArtists.toList()),
+                                  ArtistSelectionPostEvent(
+                                      selectedArtists.toList()),
                                 );
                           },
                         ),
@@ -199,10 +200,12 @@ class _ArtistSelectionPageState extends State<ArtistSelectionPage> {
                 ]));
           }
           if (state is ArtistSelectionFetchPostState) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => MainPage()),
-            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => MainPage()),
+              );
+            });
           }
           return const Center(
               child: CircularProgressIndicator(color: AppColors.primary));

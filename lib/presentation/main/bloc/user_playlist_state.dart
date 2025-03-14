@@ -3,7 +3,7 @@ abstract class HomePlaylistState {}
 class HomePlaylistLoading extends HomePlaylistState {}
 
 class HomePlaylistLoaded extends HomePlaylistState {
-  final Map<String, List<dynamic>> playlist;
+  final List playlist;
   HomePlaylistLoaded(this.playlist);
 }
 

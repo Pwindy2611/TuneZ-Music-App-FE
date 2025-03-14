@@ -14,7 +14,7 @@ class StickyDashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   double get maxExtent => 100.0;
   @override
-  double get minExtent => 95.0;
+  double get minExtent =>100.0;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {

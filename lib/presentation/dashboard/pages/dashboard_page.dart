@@ -1,12 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/common/widgets/drawer/nav_left.dart';
 import 'package:tunezmusic/presentation/dashboard/pages/home_page.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/sticky_header_delegate.dart';
-import 'package:tunezmusic/presentation/main/bloc/user_playlist_bloc.dart';
-import 'package:tunezmusic/presentation/main/bloc/user_playlist_state.dart';
 
 class DashboardWidget extends StatefulWidget {
   const DashboardWidget({super.key});
@@ -37,6 +34,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           // SliverPersistentHeader để tạo header sticky
           SliverPersistentHeader(
             pinned: true,
+            floating: true,
             delegate: StickyDashboardHeaderDelegate(
               scaffoldKey: _scaffoldKey,
               selectedIndexNotifier: _selectedIndexNotifier,

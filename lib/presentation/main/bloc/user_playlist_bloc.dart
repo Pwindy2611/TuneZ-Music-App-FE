@@ -11,38 +11,43 @@ class HomePlaylistBloc extends Bloc<HomePlaylistEvent, HomePlaylistState> {
     on<FetchHomePlaylistEvent>(_fetchHomePlaylist);
   }
 
-  Future<void> _fetchHomePlaylist(
-      FetchHomePlaylistEvent event, Emitter<HomePlaylistState> emit) async {
-    try {
-      final response = await apiService
-          .get("playlists/generatePlaylist?userId=${event.userId}");
+ Future<void> _fetchHomePlaylist(
+    FetchHomePlaylistEvent event, Emitter<HomePlaylistState> emit) async {
+  try {
+    final response = await apiService
+        .get("playlists/generatePlaylist?userId=${event.userId}");
 
-      if (kDebugMode) {
-        print("Response from API: $response");
-      }
+    if (kDebugMode) {
+      print("Response from API: $response");
+    }
 
-      if (response['success'] == true) {
-        // Kiểm tra và trích xuất danh sách bài hát
-        if (response['musics'] is Map &&
-            response['musics']['playlistsByArtist'] is Map) {
-          // Gộp tất cả danh sách bài hát của các nghệ sĩ thành một danh sách chung
-          final Map<String, List<dynamic>> artistPlaylists =
-              Map<String, List<dynamic>>.from(response['musics']['playlistsByArtist']);
+    if (response['success'] == true) {
+      if (response['data'] is List && response['data'].isNotEmpty) {
+        List<dynamic> rawPlaylists = response['data'];
 
-          emit(HomePlaylistLoaded(artistPlaylists));
-        } else {
-          emit(HomePlaylistError(
-              "API trả về dữ liệu không hợp lệ: 'musics.playlistsByArtist' không đúng định dạng"));
-        }
+        List playlists = rawPlaylists.expand((innerList) {
+          return innerList.map<Map<String, dynamic>>((playlist) {
+            return {
+              "title": playlist["title"],
+              "coverImage": playlist["coverImage"],
+            };
+          });
+        }).toList();
+
+        emit(HomePlaylistLoaded(playlists));
       } else {
         emit(HomePlaylistError(
-            "API trả về lỗi: ${response['message'] ?? 'Không rõ lỗi'}"));
+            "API trả về dữ liệu không hợp lệ: 'data' không đúng định dạng hoặc rỗng: $response"));
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print("generateUserPlaylist Error: $e");
-      }
-      emit(HomePlaylistError(e.toString()));
+    } else {
+      emit(HomePlaylistError(
+          "API trả về lỗi: ${response['message'] ?? 'Không rõ lỗi'}"));
     }
+  } catch (e) {
+    if (kDebugMode) {
+      print("generateUserPlaylist Error: $e");
+    }
+    emit(HomePlaylistError(e.toString()));
   }
+}
 }

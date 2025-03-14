@@ -146,8 +146,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     String idToken,
     Emitter<LoginState> emit,
   ) async {
+          if (kDebugMode) {
+        print(idToken.toString());
+      }
     try {
-      final res = await apiService.post(
+      final res = await apiService.postWithCookies(
         'users/login',
         {'idToken': idToken},
       );
