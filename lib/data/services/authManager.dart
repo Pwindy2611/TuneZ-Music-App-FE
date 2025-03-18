@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tunezmusic/data/services/api_service.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
 
 class AuthManager {
@@ -11,7 +12,10 @@ class AuthManager {
     return _instance;
   }
 
-  AuthManager._internal(); // Constructor private
+  late final ApiService apiService; 
+  AuthManager._internal(){
+     apiService = ApiService();
+  } // Constructor private
 
   bool isLoggedIn = false; // Mặc định chưa đăng nhập
 
@@ -36,6 +40,8 @@ void logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
 
+    await apiService.clearCookies();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
         Navigator.pushReplacement(

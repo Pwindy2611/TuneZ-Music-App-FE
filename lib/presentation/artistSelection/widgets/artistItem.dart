@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 
 class ArtistItemSelector extends StatefulWidget {
   final String image;
@@ -50,7 +51,7 @@ class _ArtistItemSelectorState extends State<ArtistItemSelector> {
                       fit: BoxFit.cover,
                     ),
                     border: widget.isSelected
-                        ? Border.all(color: Colors.green, width: 3) // Hiệu ứng viền khi chọn
+                        ? Border.all(color: AppColors.primary, width: 3)
                         : null,
                   ),
                 ),

@@ -30,6 +30,8 @@ dependencies:
   video_player: ^2.9.3
   chewie: ^1.10.0
   visibility_detector: ^0.4.0
+  palette_generator: ^0.3.3
+  audioplayers: ^5.0.2
   
 dev_dependencies:
   flutter_test:

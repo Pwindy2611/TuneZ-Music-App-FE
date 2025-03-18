@@ -67,7 +67,7 @@ class StickyHeaderOptionNavDelegate extends SliverPersistentHeaderDelegate {
                 // Danh sách phát
                 _buildSlidingButton(
                   isVisible: selectedIndex == 0 || selectedIndex == 1,
-                  slideFromLeft: true,
+                  slideFromLeft: false,
                   isMainButton: selectedIndex == 1,
                   child: _buildCategoryButton(
                       1, 'Danh sách phát', selectedIndex == 1),
@@ -85,6 +85,19 @@ class StickyHeaderOptionNavDelegate extends SliverPersistentHeaderDelegate {
                   isMainButton: selectedIndex == 2,
                   child: _buildCategoryButton(2, 'Podcast', selectedIndex == 2),
                 ),
+
+                if (selectedIndex == 0)
+                  SizedBox(
+                    width: 10,
+                  ),
+
+                // Podcast
+                _buildSlidingButton(
+                  isVisible: selectedIndex == 0 || selectedIndex == 3,
+                  slideFromLeft: false,
+                  isMainButton: selectedIndex == 3,
+                  child: _buildCategoryButton(3, 'Nghệ sĩ', selectedIndex == 3),
+                ),
               ],
             );
           },
@@ -94,35 +107,36 @@ class StickyHeaderOptionNavDelegate extends SliverPersistentHeaderDelegate {
   }
 
   /// Widget tạo hiệu ứng trượt mượt mà cho button
-  Widget _buildSlidingButton(
-      {required bool isVisible,
-      required bool slideFromLeft,
-      required Widget child,
-      required bool isMainButton}) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
-      child: isVisible
-          ? TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 300),
-              tween: Tween<double>(
-                begin: slideFromLeft ? -50 : 50,
-                end: 0,
-              ),
-              builder: (context, value, child) {
-                return Transform.translate(
-                  offset: Offset(value, 0),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: isVisible ? 1.0 : 0.0,
-                    child: child,
-                  ),
-                );
-              },
-              child: child,
-            )
-          : const SizedBox.shrink(),
-    );
-  }
+  Widget _buildSlidingButton({
+  required bool isVisible,
+  required bool slideFromLeft,
+  required Widget child,
+  required bool isMainButton,
+}) {
+  return AnimatedSwitcher(
+    duration: const Duration(milliseconds: 200),
+    child: isVisible
+        ? TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 300),
+            tween: Tween<double>(
+              begin: isMainButton ? 0 : (slideFromLeft ? -50 : 50),
+              end: 0,
+            ),
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(value, 0),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isVisible ? 1.0 : 0.0,
+                  child: child,
+                ),
+              );
+            },
+            child: child,
+          )
+        : const SizedBox.shrink(),
+  );
+}
 
   Widget _buildCategoryButton(int index, String label, bool isSelected) {
     return CateHomeButton(

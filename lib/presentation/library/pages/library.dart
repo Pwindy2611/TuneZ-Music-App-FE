@@ -1,11 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/common/widgets/drawer/nav_left.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
+import 'package:tunezmusic/presentation/library/bloc/artist_follow_state.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_state.dart';
 import 'package:tunezmusic/presentation/library/widgets/add_artist_btn.dart';
 import 'package:tunezmusic/presentation/library/widgets/add_podcast_btn.dart';
+import 'package:tunezmusic/presentation/library/widgets/artist_follow_item.dart';
 import 'package:tunezmusic/presentation/library/widgets/save_item_playlist.dart';
 import 'package:tunezmusic/presentation/library/widgets/sticky_header_delegate.dart';
 import 'package:tunezmusic/presentation/library/widgets/sticky_header_optionNav.dart';
@@ -24,22 +28,27 @@ class _LibraryWidgetState extends State<LibraryWidget> {
   final ValueNotifier<bool> _selectedValueNotifier = ValueNotifier<bool>(false);
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
       key: _scaffoldKey,
       drawer: CustomDrawer(),
       body: NestedScrollView(
-        physics: ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
             pinned: true,
             floating: true,
             automaticallyImplyLeading: false,
             flexibleSpace: FlexibleSpaceBar(
-              background: StickyHeaderLibraryhDelegate(
-                      scaffoldKey: _scaffoldKey)
-                  .build(context, 0, false),
+              background:
+                  StickyHeaderLibraryDelegate(scaffoldKey: _scaffoldKey)
+                      .build(context, 0, false),
             ),
           ),
           SliverPersistentHeader(
@@ -58,8 +67,22 @@ class _LibraryWidgetState extends State<LibraryWidget> {
         body: BlocBuilder<LibraryUIBloc, LibraryState>(
           builder: (context, state) {
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: state.isGridView ? _buildGridView() : _buildListView(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BlocBuilder<ArtistFollowBloc, ArtistFollowState>(
+                builder: (context, artistState) {
+                  if (artistState is ArtistFollowLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (artistState is ArtistFollowLoaded) {
+                    if (kDebugMode) {
+                      print(artistState.artistList);
+                    }
+                    return state.isGridView
+                        ? _buildGridView(artistState.artistList)
+                        : _buildListView(artistState.artistList);
+                  }
+                  return Padding(padding: EdgeInsets.all(0));
+                },
+              ),
             );
           },
         ),
@@ -67,30 +90,67 @@ class _LibraryWidgetState extends State<LibraryWidget> {
     );
   }
 
-  /// Hiển thị dạng danh sách (List)
-  Widget _buildListView() {
-    return ListView(
-      children: const [
-        SavePlaylistWidget(),
-        SizedBox(height: 20),
-        AddArtistWidget(),
-        SizedBox(height: 20),
-        AddPodcastWidget(),
-      ],
+  Widget _buildListView(List<dynamic> artistList) {
+    return ValueListenableBuilder<int>(
+      valueListenable: _selectedIndexNotifier,
+      builder: (context, selectedIndex, child) {
+        return ListView(
+          children: [
+            if (selectedIndex == 3 || selectedIndex == 0) ...[
+              if (artistList.isNotEmpty)
+                ...artistList.map((artist) => Column(
+                      children: [
+                        ArtistFollowItem(
+                          name: artist['name'] ?? 'Unknown Artist',
+                          image: artist['img'] ?? '',
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    )),
+            ],
+            if (selectedIndex == 1 || selectedIndex == 0) ...[
+              const SavePlaylistWidget(),
+              const SizedBox(height: 20),
+            ],
+            if (selectedIndex == 2 || selectedIndex == 0) ...[
+              const AddPodcastWidget(),
+              const SizedBox(height: 20),
+            ],
+            if (selectedIndex == 3 || selectedIndex == 0)
+              const AddArtistWidget(),
+            const SizedBox(height: 100),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildGridView() {
-    return GridView.count(
-      crossAxisCount: 3, 
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      childAspectRatio: 0.5,
-      children: const [
-        SavePlaylistWidget(),
-        AddArtistWidget(),
-        AddPodcastWidget(),
-      ],
+  Widget _buildGridView(List<dynamic> artistList) {
+    return ValueListenableBuilder<int>(
+      valueListenable: _selectedIndexNotifier,
+      builder: (context, selectedIndex, child) {
+        return GridView.count(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 0.7,
+          children: [
+            if (selectedIndex == 3 || selectedIndex == 0) ...[
+              if (artistList.isNotEmpty)
+                ...artistList.map((artist) => ArtistFollowItem(
+                      name: artist['name'] ?? 'Unknown Artist',
+                      image: artist['img'] ?? '',
+                    )),
+            ],
+            if (selectedIndex == 1 || selectedIndex == 0)
+              const SavePlaylistWidget(),
+            if (selectedIndex == 2 || selectedIndex == 0)
+              const AddPodcastWidget(),
+            if (selectedIndex == 3 || selectedIndex == 0)
+              const AddArtistWidget(),
+          ],
+        );
+      },
     );
   }
 }

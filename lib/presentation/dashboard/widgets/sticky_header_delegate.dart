@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/core/configs/assets/app_images.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/common/widgets/button/cate_home_button.dart';
@@ -7,14 +8,21 @@ class StickyDashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final GlobalKey<ScaffoldState> _scaffoldKey;
   final ValueNotifier<int> _selectedIndexNotifier;
 
-  StickyDashboardHeaderDelegate({required GlobalKey<ScaffoldState> scaffoldKey, required ValueNotifier<int> selectedIndexNotifier})
-      : _scaffoldKey = scaffoldKey,
+  StickyDashboardHeaderDelegate({
+    required GlobalKey<ScaffoldState> scaffoldKey,
+    required ValueNotifier<int> selectedIndexNotifier,
+  })  : _scaffoldKey = scaffoldKey,
         _selectedIndexNotifier = selectedIndexNotifier;
 
   @override
   double get maxExtent => 100.0;
   @override
-  double get minExtent =>100.0;
+  double get minExtent => 100.0;
+
+  Future<String?> _getUserAvatar() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userProfilePicture');
+  }
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -25,19 +33,27 @@ class StickyDashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
         alignment: Alignment.bottomLeft,
         child: Row(
           children: [
-            GestureDetector(
-              onTap: () {
-                _scaffoldKey.currentState?.openDrawer();
+            FutureBuilder<String?>(
+              future: _getUserAvatar(),
+              builder: (context, snapshot) {
+                String? avatarUrl = snapshot.data;
+                return GestureDetector(
+                  onTap: () {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
+                        ? NetworkImage(avatarUrl)
+                        : AssetImage(AppImages.localAvt) as ImageProvider,
+                  ),
+                );
               },
-              child: const CircleAvatar(
-                backgroundImage: AssetImage(AppImages.localAvt),
-              ),
             ),
             const SizedBox(width: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Sử dụng ValueListenableBuilder để theo dõi sự thay đổi của selectedIndexNotifier
                 ValueListenableBuilder<int>(
                   valueListenable: _selectedIndexNotifier,
                   builder: (context, selectedIndex, child) {
@@ -71,7 +87,7 @@ class StickyDashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
       label: label,
       isSelected: isSelected,
       onPressed: () {
-        _selectedIndexNotifier.value = index; // Cập nhật index được chọn
+        _selectedIndexNotifier.value = index;
       },
     );
   }
@@ -81,4 +97,3 @@ class StickyDashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
-

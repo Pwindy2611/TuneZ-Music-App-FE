@@ -1,13 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/common/widgets/appBar/app_Bar_title.dart';
 import 'package:tunezmusic/common/widgets/button/light_button.dart';
-import 'package:tunezmusic/core/configs/globalSingleton/authManager.dart';
+import 'package:tunezmusic/data/services/authManager.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/main/pages/mainpage.dart';
-import 'package:tunezmusic/presentation/splash/pages/splash.dart';
 
 class SettingAccountPage extends StatelessWidget {
   SettingAccountPage({super.key});

@@ -6,7 +6,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tunezmusic/core/configs/globalSingleton/authManager.dart';
+import 'package:tunezmusic/data/services/authManager.dart';
 import 'package:tunezmusic/core/lib/decode_token.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_event.dart';
@@ -35,8 +35,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
       final idToken = await userCredential.user?.getIdToken();
       if (idToken != null) {
-        await handleLoginResponseByServer(
-            idToken, emit);
+        await handleLoginResponseByServer(idToken, emit);
       } else {
         emit(LoginErrorState("Không thể lấy ID Token."));
       }
@@ -63,8 +62,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final userCredential = await _auth.signInWithCredential(credential);
       final idToken = await userCredential.user?.getIdToken();
       if (idToken != null) {
-        await handleLoginResponseByServer(
-            idToken, emit);
+        await handleLoginResponseByServer(idToken, emit);
       } else {
         emit(LoginGoogleErrorState("Không thể lấy ID Token."));
       }
@@ -91,8 +89,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         final userCredential = await _auth.signInWithCredential(credential);
         final idToken = await userCredential.user?.getIdToken();
         if (idToken != null) {
-          await handleLoginResponseByServer(
-              idToken, emit);
+          await handleLoginResponseByServer(idToken, emit);
         } else {
           emit(LoginFacebookErrorState("Không thể lấy ID Token."));
         }
@@ -128,8 +125,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         if (currentUser != null) {
           await currentUser.linkWithCredential(credential);
           final idToken = await currentUser.getIdToken();
-          await handleLoginResponseByServer(
-              idToken!, emit);
+          await handleLoginResponseByServer(idToken!, emit);
         } else {
           emit(LoginFacebookErrorState("Lỗi liên kết tài khoản."));
         }
@@ -146,9 +142,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     String idToken,
     Emitter<LoginState> emit,
   ) async {
-          if (kDebugMode) {
-        print(idToken.toString());
-      }
+    if (kDebugMode) {
+      print(idToken.toString());
+    }
     try {
       final res = await apiService.postWithCookies(
         'users/login',
@@ -166,22 +162,45 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         if (kDebugMode) {
           print('Cookies hiện tại: $cookies');
         }
+
+        // Lấy user token
         final userData = await apiService.get('users/getUserCustomToken');
         if (kDebugMode) {
           print('Dữ liệu user: $userData');
         }
+
         final token = userData['token'] ?? '';
         final userId = extractUserIdFromToken(token);
+
+        // Lưu token vào SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         await prefs.setString('userId', userId);
+
+        // Lấy thông tin user
+        final userInfo = await apiService.get('users/getUserInfo');
+        if (kDebugMode) {
+          print('Thông tin user: $userInfo');
+        }
+
+        // Kiểm tra response hợp lệ
+        if (userInfo['status'] == 200 && userInfo['user'] != null) {
+          final user = userInfo['user'];
+          await prefs.setString('userId', user['id'] ?? '');
+          await prefs.setString('userName', user['name'] ?? '');
+          await prefs.setString('userEmail', user['email'] ?? '');
+          await prefs.setString(
+              'userProfilePicture', user['profilePicture'] ?? '');
+        }
+
         auth.login();
+
         if (res['isFirstTimeLogin'] == true) {
-        emit(NewAccountState());
-        return;
-      }
+          emit(NewAccountState());
+          return;
+        }
         emit(LoginCompletedState());
-      }  else {
+      } else {
         emit(LoginErrorState("Lỗi: ${res['message']}"));
       }
     } catch (e) {

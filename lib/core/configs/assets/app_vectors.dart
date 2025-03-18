@@ -12,4 +12,5 @@ class AppVectors {
   static const String iconLibraryFocus = '${basePath}icon_library_focus$format';
   static const String iconSearchFocus = '${basePath}icon_search_focus$format';
   static const String iconPremiumFocus = '${basePath}icon_premium_focus$format';
+  static const String shuffleIcon = '${basePath}shuffle_icon$format';
 }

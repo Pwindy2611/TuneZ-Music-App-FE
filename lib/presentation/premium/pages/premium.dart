@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tunezmusic/common/widgets/button/basic_button.dart';
-import 'package:tunezmusic/common/widgets/button/basic_outline_button.dart';
 import 'package:tunezmusic/core/configs/assets/app_images.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';

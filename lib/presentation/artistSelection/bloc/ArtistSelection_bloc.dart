@@ -24,6 +24,9 @@ class ArtistSelectionBloc
     final pref = await SharedPreferences.getInstance();
     final savedUserId = pref.getString('userId');
     if (savedUserId != null && savedUserId.isNotEmpty) {
+      if (kDebugMode) {
+        print(event.selectedArtists);
+      }
       try {
         final res = await apiService.post("follow/addFollowing", {
           "followingIds": event.selectedArtists,

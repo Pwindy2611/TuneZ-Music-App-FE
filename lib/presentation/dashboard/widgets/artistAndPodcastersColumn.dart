@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/playlistDetail/pages/playlistDetail.dart';
 
 class ArtistAndPodcastersColumn extends StatefulWidget {
   final String image;
   final String name;
   final int borderRadius;
+  final VoidCallback callback;
 
   const ArtistAndPodcastersColumn({
     super.key,
     required this.name,
     required this.image,
     required this.borderRadius,
+    required this.callback,
   });
 
   @override
@@ -26,6 +29,7 @@ class _ArtistAndPodcastersColumnState extends State<ArtistAndPodcastersColumn> {
       onTapDown: (_) => setState(() => isTapped = true),
       onTapUp: (_) => setState(() => isTapped = false),
       onTapCancel: () => setState(() => isTapped = false),
+      onTap: widget.callback,
       child: Stack(
         alignment: Alignment.center,
         children: [
