@@ -177,29 +177,29 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         await prefs.setString('token', token);
         await prefs.setString('userId', userId);
 
-        // Lấy thông tin user
-        final userInfo = await apiService.get('users/getUserInfo');
-        if (kDebugMode) {
-          print('Thông tin user: $userInfo');
-        }
-
-        // Kiểm tra response hợp lệ
-        if (userInfo['status'] == 200 && userInfo['user'] != null) {
-          final user = userInfo['user'];
-          await prefs.setString('userId', user['id'] ?? '');
-          await prefs.setString('userName', user['name'] ?? '');
-          await prefs.setString('userEmail', user['email'] ?? '');
-          await prefs.setString(
-              'userProfilePicture', user['profilePicture'] ?? '');
-        }
-
-        auth.login();
-
         if (res['isFirstTimeLogin'] == true) {
           emit(NewAccountState());
           return;
+        } else {
+          // Lấy thông tin user
+          final userInfo = await apiService.get('users/getUserInfo');
+          if (kDebugMode) {
+            print('Thông tin user: $userInfo');
+          }
+
+          // Kiểm tra response hợp lệ
+          if (userInfo['status'] == 200 && userInfo['user'] != null) {
+            final user = userInfo['user'];
+            await prefs.setString('userId', user['id'] ?? '');
+            await prefs.setString('userName', user['name'] ?? '');
+            await prefs.setString('userEmail', user['email'] ?? '');
+            await prefs.setString(
+                'userProfilePicture', user['profilePicture'] ?? '');
+          }
+
+          auth.login();
+          emit(LoginCompletedState());
         }
-        emit(LoginCompletedState());
       } else {
         emit(LoginErrorState("Lỗi: ${res['message']}"));
       }
@@ -212,6 +212,19 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emit(DoVerifiedLoginState());
         return;
       }
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      if (await googleSignIn.isSignedIn()) {
+        // Kiểm tra nếu đã đăng nhập
+        await googleSignIn.signOut();
+      }
+
+      await FirebaseAuth.instance.signOut();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      await apiService.clearCookies();
       emit(LoginErrorState("Lỗi xử lý phản hồi từ server: ${e.toString()}"));
     }
   }

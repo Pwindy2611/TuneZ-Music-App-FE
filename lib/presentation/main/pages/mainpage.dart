@@ -1,14 +1,17 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
+import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
+import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
+import 'package:tunezmusic/core/configs/bloc/musicManagment/music_state.dart';
 import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/data/services/authManager.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/MusicPlayerWidget.dart';
 import 'package:tunezmusic/presentation/dashboard/pages/dashboard_page.dart';
 import 'package:tunezmusic/presentation/library/pages/library.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
@@ -55,11 +58,14 @@ class _MainPageState extends State<MainPage> {
     if (savedUserId != null && savedUserId.isNotEmpty) {
       final userPlaylistBloc = context.read<HomePlaylistBloc>();
       final artistFollowBloc = context.read<ArtistFollowBloc>();
+      final musicBloc = context.read<MusicBloc>();
 
       userPlaylistBloc.add(FetchHomePlaylistEvent(savedUserId));
       artistFollowBloc.add(FetchArtistFollowEvent(savedUserId));
+      musicBloc.add(LoadUserMusicState());
 
-      await _waitForBlocsToComplete([userPlaylistBloc, artistFollowBloc]);
+      await _waitForBlocsToComplete(
+          [userPlaylistBloc, artistFollowBloc, musicBloc]);
     }
 
     if (mounted) {
@@ -96,34 +102,33 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _logoutAndRedirect() async {
-    if (auth.canLogout() == true) {
-      auth.logout(context);
-    }
+    auth.logout(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async {
-          final navBloc = context.read<NavigationBloc>();
-          if (navBloc.state.playlistDetail != null) {
-            navBloc.add(ChangeTabEvent(0));
-            return false;
-          }
-          if (navBloc.state.selectedIndex != 0) {
-            navBloc.add(ChangeTabEvent(0));
-            return false;
-          }
-          return true;
-        },
-        child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            backgroundColor: AppColors.darkBackground,
-            body: isLoading
-                ? Center(
-                    child: CircularProgressIndicator(color: AppColors.primary))
-                : BlocBuilder<NavigationBloc, NavigationState>(
-                    builder: (context, state) {
+      onWillPop: () async {
+        final navBloc = context.read<NavigationBloc>();
+        if (navBloc.state.playlistDetail != null) {
+          navBloc.add(ChangeTabEvent(0));
+          return false;
+        }
+        if (navBloc.state.selectedIndex != 0) {
+          navBloc.add(ChangeTabEvent(0));
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: AppColors.darkBackground,
+        body: isLoading
+            ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : Stack(
+                children: [
+                  BlocBuilder<NavigationBloc, NavigationState>(
+                      builder: (context, state) {
                     return Stack(children: [
                       Positioned.fill(
                           child: state.playlistDetail != null
@@ -137,11 +142,12 @@ class _MainPageState extends State<MainPage> {
                           right: 0,
                           bottom: 0,
                           child: Container(
-                              height: 110,
+                              height: 150,
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
                                     Color.fromARGB(255, 0, 0, 0),
+                                    Color.fromARGB(178, 0, 0, 0),
                                     Color.fromARGB(0, 0, 0, 0),
                                   ],
                                   begin: Alignment.bottomCenter,
@@ -191,7 +197,7 @@ class _MainPageState extends State<MainPage> {
                                           .watch<NavigationBloc>()
                                           .state
                                           .selectedIndex,
-                                      tappedIndex: null,
+                                      tappedIndex: state.selectedIndex,
                                       onItemTapped: (index) {
                                         context
                                             .read<NavigationBloc>()
@@ -199,7 +205,9 @@ class _MainPageState extends State<MainPage> {
                                       },
                                     );
                                   }).toList(),
-                                  currentIndex: state.selectedIndex > 3 ? 0 : state.selectedIndex,
+                                  currentIndex: state.selectedIndex > 3
+                                      ? 0
+                                      : state.selectedIndex,
                                   selectedItemColor: Colors.white,
                                   unselectedItemColor: Colors.grey,
                                   selectedLabelStyle:
@@ -212,6 +220,17 @@ class _MainPageState extends State<MainPage> {
                                         .add(ChangeTabEvent(index));
                                   }))),
                     ]);
-                  })));
+                  }),
+                  Positioned(
+                    left: 10,
+                    right: 10,
+                    bottom:
+                        65, // Điều chỉnh vị trí để không đè lên BottomNavigationBar
+                    child: MusicPlayerWidget(),
+                  ),
+                ],
+              ),
+      ),
+    );
   }
 }

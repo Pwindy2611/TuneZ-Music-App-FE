@@ -11,9 +11,7 @@ class SettingAccountPage extends StatelessWidget {
 
  Future<void> _signOut(BuildContext context) async {
   try {
-    if(auth.canLogout()==true){
       auth.logout(context);
-    }
   } catch (e) {
     print("Lỗi đăng xuất: $e");
   }

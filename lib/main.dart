@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
 import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_theme.dart';
@@ -32,9 +33,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(); // Load .env nếu cần
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   await FirebaseAuth.instance.setSettings(
     appVerificationDisabledForTesting: true,
@@ -44,14 +47,20 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
 
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
+
   runApp(MultiBlocProvider(providers: [
     BlocProvider(create: (context) => HomePlaylistBloc(ApiService())),
     BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
     BlocProvider(create: (context) => ArtistFollowBloc(ApiService())),
-    BlocProvider(create: (context) => LoginBloc(ApiService())), 
+    BlocProvider(create: (context) => LoginBloc(ApiService())),
     BlocProvider(create: (context) => ArtistSelectionBloc(ApiService())),
     BlocProvider(create: (context) => LibraryUIBloc()),
-    BlocProvider(create: (context) => NavigationBloc()),  
+    BlocProvider(create: (context) => NavigationBloc()),
     BlocProvider(create: (context) => MusicBloc(ApiService())),
   ], child: MainApp()));
 }

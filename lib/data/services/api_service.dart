@@ -25,8 +25,8 @@ class ApiService {
       await _initCookieJar(); // Đảm bảo _cookieJar khởi tạo hoàn tất
 
       _dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
+        receiveTimeout: Duration(seconds: 20), // Tăng thời gian nhận phản hồi
+        connectTimeout: Duration(seconds: 10), // Thời gian kết nối tối đa
         baseUrl: dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '',
         headers: {'Content-Type': 'application/json'},
         validateStatus: (status) => status != null && status <= 500,
@@ -50,7 +50,8 @@ class ApiService {
   Future<void> _initCookieJar() async {
     try {
       final appDocDir = await getApplicationDocumentsDirectory();
-      _cookieJar = PersistCookieJar(storage: FileStorage('${appDocDir.path}/cookies'));
+      _cookieJar =
+          PersistCookieJar(storage: FileStorage('${appDocDir.path}/cookies'));
     } catch (e) {
       throw Exception('Lỗi khởi tạo CookieJar: $e');
     }
@@ -67,6 +68,19 @@ class ApiService {
     }
   }
 
+  Future<ResponseBody?> getStream(String endpoint) async {
+  await ensureInitialized();
+  try {
+    final response = await _dio.get<ResponseBody>(
+      endpoint,
+      options: Options(responseType: ResponseType.stream), // ⚡ Nhận dữ liệu dạng stream
+    );
+    return response.data;
+  } catch (e) {
+    throw Exception('Error streaming music: $e');
+  }
+}
+
   /// Phương thức POST
   Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
     await ensureInitialized();
@@ -79,18 +93,14 @@ class ApiService {
   }
 
   /// Phương thức POST login (lưu cookie)
-  Future<dynamic> postWithCookies(String endpoint, Map<String, dynamic> body) async {
+  Future<dynamic> postWithCookies(
+      String endpoint, Map<String, dynamic> body) async {
     await ensureInitialized();
     try {
       final response = await _dio.post(endpoint, data: jsonEncode(body));
-
-      // Nếu login thành công, lưu cookie vào bộ nhớ
-      if (endpoint == 'users/login') {
         final uri = Uri.parse(_dio.options.baseUrl);
         final cookies = await _cookieJar.loadForRequest(uri);
         await _cookieJar.saveFromResponse(uri, cookies);
-      }
-
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Error POST: $e');
@@ -105,10 +115,13 @@ class ApiService {
 
   /// Xử lý phản hồi HTTP
   dynamic _handleResponse(Response response) {
-    if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+    if (response.statusCode != null &&
+        response.statusCode! >= 200 &&
+        response.statusCode! < 300) {
       return response.data;
     } else {
-      throw Exception('HTTP Error: ${response.statusCode}, Body: ${response.data}');
+      throw Exception(
+          'HTTP Error: ${response.statusCode}, Body: ${response.data}');
     }
   }
 

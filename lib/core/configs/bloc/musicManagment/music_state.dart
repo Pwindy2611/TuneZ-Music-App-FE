@@ -7,8 +7,7 @@ abstract class MusicState extends Equatable {
 
 class MusicInitial extends MusicState {}
 
-class MusicLoading extends MusicState {}
-
+class MusicNewAccount extends MusicState {}
 class MusicLoaded extends MusicState {
   final String currentMusicId;
   final bool isPlaying;
@@ -24,7 +23,6 @@ class MusicLoaded extends MusicState {
     this.musicUrl,
   });
 
-  // Thêm phương thức copyWith()
   MusicLoaded copyWith({
     String? currentMusicId,
     bool? isPlaying,
@@ -40,4 +38,7 @@ class MusicLoaded extends MusicState {
       musicUrl: musicUrl ?? this.musicUrl,
     );
   }
-  }
+
+  @override
+  List<Object?> get props => [currentMusicId, isPlaying, duration, position, musicUrl];
+}

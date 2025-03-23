@@ -12,8 +12,10 @@ BottomNavigationBarItem buildBottomNavItem({
   required void Function(int) onItemTapped,
 }) {
   return BottomNavigationBarItem(
-    icon: GestureDetector(
+    icon: InkWell(
       onTap: () => onItemTapped(index),
+       splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: AnimatedScale(
         scale: tappedIndex == index ? 1.2 : 1.0,
         duration: const Duration(milliseconds: 300),
@@ -25,7 +27,7 @@ BottomNavigationBarItem buildBottomNavItem({
               padding: const EdgeInsets.only(bottom: 4.5),
               child: SvgPicture.asset(
                 selectedIndex == index ? focusedIcon : icon,
-                height: 26,
+                height: 24,
               ),
             ),
           ],

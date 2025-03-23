@@ -4,11 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
+import 'package:tunezmusic/data/services/authManager.dart';
 import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_event.dart';
 import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_state.dart';
+import 'package:tunezmusic/presentation/login/bloc/login_state.dart';
 
 class ArtistSelectionBloc
     extends Bloc<ArtistSelectionEvent, ArtistSelectionState> {
+  final AuthManager auth = AuthManager();
   final ApiService apiService;
   ArtistSelectionBloc(this.apiService) : super(ArtistSelectionLoadingState()) {
     on<ArtistSelectionPostEvent>(handleArtistSelectionPostEvent);
@@ -37,6 +40,24 @@ class ArtistSelectionBloc
         }
         if (res["status"] == 201) {
           emit(ArtistSelectionFetchPostState());
+
+            final userInfo = await apiService.get('users/getUserInfo');
+          if (kDebugMode) {
+            print('Thông tin user: $userInfo');
+          }
+
+          // Kiểm tra response hợp lệ
+          if (userInfo['status'] == 200 && userInfo['user'] != null) {
+            final user = userInfo['user'];
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('userId', user['id'] ?? '');
+            await prefs.setString('userName', user['name'] ?? '');
+            await prefs.setString('userEmail', user['email'] ?? '');
+            await prefs.setString(
+                'userProfilePicture', user['profilePicture'] ?? '');
+          }
+
+          auth.login();
         } else {
           emit(ArtistSelectionPostErrorState("Failed to follow artists"));
         }

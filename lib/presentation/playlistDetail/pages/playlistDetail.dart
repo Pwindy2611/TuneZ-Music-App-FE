@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -5,13 +6,16 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:palette_generator/palette_generator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/common/widgets/appBar/app_Bar_playlistDetails.dart';
 import 'package:tunezmusic/common/widgets/button/playlist_Detail_button.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
+import 'package:tunezmusic/core/configs/bloc/musicManagment/music_state.dart';
 import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/playlistDetail/widgets/item_track.dart';
 
 class PlayListDetail extends StatefulWidget {
   final Map playlist;
@@ -36,6 +40,7 @@ class _PlayListDetailState extends State<PlayListDetail> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _extractDominantColor();
+    _savePlaylistToSharedPreferences();
     if (kDebugMode) {
       print(widget.playlist);
     }
@@ -108,6 +113,13 @@ class _PlayListDetailState extends State<PlayListDetail> {
       return "$minutes phút";
     }
   }
+
+  Future<void> _savePlaylistToSharedPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  final tracks = widget.playlist['tracks'].map((track) => track['_id']).toList();
+  await prefs.setString('playlist_tracks', jsonEncode(tracks));
+  context.read<MusicBloc>().add(UpdatePlaylist());
+}
 
   @override
   void dispose() {
@@ -439,15 +451,23 @@ class _PlayListDetailState extends State<PlayListDetail> {
                               ),
                             ),
                             //TRACKS PLAYLIST
-                            Container(
-                                decoration: BoxDecoration(
-                                    color: AppColors.darkBackground),
-                                child: Column(
-                                  children: widget.playlist['tracks']
-                                      .map<Widget>(
-                                          (track) => _buildSongItem(track,context))
-                                      .toList(),
-                                )),
+                            BlocBuilder<MusicBloc, MusicState>(
+                              builder: (context, state) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                      color: AppColors.darkBackground),
+                                  child: Column(
+                                    children: widget.playlist['tracks']
+                                        .map<Widget>((track) {
+                                      return TrackItemWidget(
+                                        track: track,
+                                        prColor: _dominantColor,
+                                      );
+                                    }).toList(),
+                                  ),
+                                );
+                              },
+                            ),
                             SizedBox(height: 500),
                           ],
                         ),
@@ -456,7 +476,9 @@ class _PlayListDetailState extends State<PlayListDetail> {
                         title: widget.playlist['title'],
                         blurAmount: _blurAmount,
                         onBackPressed: () {
-                           context.read<NavigationBloc>().add(ClosePlaylistDetailEvent());
+                          context
+                              .read<NavigationBloc>()
+                              .add(ClosePlaylistDetailEvent());
                         },
                       ),
                     ],
@@ -464,51 +486,4 @@ class _PlayListDetailState extends State<PlayListDetail> {
           ),
         ));
   }
-}
-
-Widget _buildSongItem(Map track, BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Image.network(
-                track['imgPath'],
-                width: 40,
-                height: 40,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(width: 12), // Tạo khoảng cách giữa ảnh và văn bản
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Căn trái văn bản
-              children: [
-                Text(
-                  track['name'],
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  track['artist'],
-                  style: TextStyle(color: AppColors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        IconButton(
-          onPressed: () {
-            context.read<MusicBloc>().add(PlayMusic(musicId: track['_id']));
-          },
-          icon: Icon(Icons.play_arrow, size: 28, color: Colors.white), // Thay icon play
-        ),
-      ],
-    ),
-  );
 }

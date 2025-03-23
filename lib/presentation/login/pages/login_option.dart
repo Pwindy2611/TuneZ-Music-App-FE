@@ -24,7 +24,6 @@ class LoginOptionPage extends StatelessWidget {
   LoginOptionPage({super.key});
   final StreamController<String> phoneNumberStreamController =
       StreamController<String>();
-  final TextEditingController _phoneController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoginBloc, LoginState>(
@@ -40,28 +39,27 @@ class LoginOptionPage extends StatelessWidget {
             ),
           );
         }
+        if (state is LoginCompletedState) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => MainPage()),
+          );
+        }
         if (state is DoVerifiedLoginState) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => VerifyEmail()),
           );
-        }
-        if (state is LoginCompletedState) {
-          // Đóng loading và điều hướng
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => MainPage()),
-          );
-        } 
-        else if (state is NewAccountState){
+        } else if (state is NewAccountState) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => ArtistSelectionPage()),
           );
-        }else if (state is LoginErrorState) {
+        } else if (state is LoginErrorState) {
           if (kDebugMode) {
             print(state.message);
           }
+          Navigator.of(context, rootNavigator: true).pop();
         } else if (state is LoginGoogleErrorState ||
             state is LoginFacebookErrorState) {
           if (state is LoginGoogleErrorState) {
