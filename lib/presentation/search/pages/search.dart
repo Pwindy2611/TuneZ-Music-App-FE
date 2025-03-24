@@ -521,7 +521,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
                   if (index >= listData.length) {
-                    return SizedBox(height: 100);
+                    return SizedBox.shrink();
                   }
                   final item = listData[index];
                   return ItemCateSearch(
@@ -531,7 +531,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                     backgroundColor: _parseColor(item["color"]),
                   );
                 },
-                childCount: listData.length + 2,
+                childCount: listData.length + 4,
               ),
             ),
           ),

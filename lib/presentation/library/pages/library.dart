@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/common/widgets/drawer/nav_left.dart';
+import 'package:tunezmusic/common/widgets/loading/loading.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_state.dart';
@@ -71,7 +72,7 @@ class _LibraryWidgetState extends State<LibraryWidget> {
               child: BlocBuilder<ArtistFollowBloc, ArtistFollowState>(
                 builder: (context, artistState) {
                   if (artistState is ArtistFollowLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return DotsLoading();
                   } else if (artistState is ArtistFollowLoaded) {
                     if (kDebugMode) {
                       print(artistState.artistList);

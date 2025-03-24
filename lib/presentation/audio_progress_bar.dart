@@ -11,7 +11,6 @@ class AudioProgressBar extends StatelessWidget {
         if (state is MusicLoaded) {
           final position = state.position.inSeconds.toDouble();
           final duration = state.duration.inSeconds.toDouble();
-
           if (duration == 0) {
             return Container();
           }

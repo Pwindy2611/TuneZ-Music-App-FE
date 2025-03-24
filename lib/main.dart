@@ -10,6 +10,7 @@ import 'package:tunezmusic/core/configs/theme/app_theme.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 import 'package:tunezmusic/data/services/firebase_options.dart';
 import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_bloc.dart';
+import 'package:tunezmusic/presentation/history/bloc/history_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_bloc.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
@@ -62,6 +63,7 @@ void main() async {
     BlocProvider(create: (context) => LibraryUIBloc()),
     BlocProvider(create: (context) => NavigationBloc()),
     BlocProvider(create: (context) => MusicBloc(ApiService())),
+    BlocProvider(create: (context) => HistoryBloc(ApiService())),
   ], child: MainApp()));
 }
 

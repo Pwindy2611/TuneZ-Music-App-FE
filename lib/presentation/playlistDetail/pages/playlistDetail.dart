@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,6 +10,7 @@ import 'package:palette_generator/palette_generator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/common/widgets/appBar/app_Bar_playlistDetails.dart';
 import 'package:tunezmusic/common/widgets/button/playlist_Detail_button.dart';
+import 'package:tunezmusic/common/widgets/loading/loading.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
@@ -114,11 +116,30 @@ class _PlayListDetailState extends State<PlayListDetail> {
     }
   }
 
-  Future<void> _savePlaylistToSharedPreferences() async {
+Future<void> _savePlaylistToSharedPreferences() async {
   final prefs = await SharedPreferences.getInstance();
-  final tracks = widget.playlist['tracks'].map((track) => track['_id']).toList();
-  await prefs.setString('playlist_tracks', jsonEncode(tracks));
-  context.read<MusicBloc>().add(UpdatePlaylist());
+  final String? existingTracksJson = prefs.getString('playlist_tracks');
+
+  final List<String> tracks = widget.playlist['tracks']
+      .map<String>((track) => track['_id'].toString())
+      .toList();
+
+  final String newTracksJson = jsonEncode(tracks);
+
+  if (existingTracksJson != null) {
+    // Ép kiểu danh sách đã lưu thành List<String>
+    final List<dynamic> existingTracksDynamic = jsonDecode(existingTracksJson);
+    final List<String> existingTracks = existingTracksDynamic.map((e) => e.toString()).toList();
+
+    if (const ListEquality().equals(existingTracks, tracks)) {
+      return; // Không cần cập nhật nếu danh sách không thay đổi
+    }
+
+    await prefs.remove('playlist_tracks'); // Xóa dữ liệu cũ
+  }
+
+  await prefs.setString('playlist_tracks', newTracksJson); // Lưu danh sách mới
+  context.read<MusicBloc>().add(UpdatePlaylist()); // Cập nhật state
 }
 
   @override
@@ -142,11 +163,7 @@ class _PlayListDetailState extends State<PlayListDetail> {
           },
           child: Scaffold(
             body: _isLoading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary,
-                    ),
-                  )
+                ? DotsLoading()
                 : Stack(
                     children: [
                       SingleChildScrollView(

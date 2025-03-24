@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tunezmusic/common/widgets/loading/loading.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_bloc.dart';
 import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_event.dart';
@@ -207,8 +208,7 @@ class _ArtistSelectionPageState extends State<ArtistSelectionPage> {
               );
             });
           }
-          return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
+          return DotsLoading();
         },
       ),
     );

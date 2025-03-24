@@ -17,9 +17,11 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final ApiService apiService;
   StreamSubscription? _positionSubscription;
+  StreamSubscription? _playerStateSubscription;
+  StreamSubscription? _playbackStateSubscription;
   List<String> playlist = []; // Danh sách phát
-  int currentIndex = 0; // Chỉ số bài hát hiện tại
   PlayerState? _previousState;
+  bool _isNextCalled = false;
   MusicBloc(this.apiService) : super(MusicInitial()) {
     on<LoadUserMusicState>(_onLoadUserMusicState);
     on<PlayStreamMusic>(_onPlayMusicOnFirst);
@@ -29,56 +31,81 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     on<UpdatePosition>(_onUpdatePosition);
     on<UpdatePlaylist>(_onUpdatePlaylist);
     _loadPlaylistFromSharedPreferences();
+    _setupEventListeners();
+  }
+
+  void _setupEventListeners() {
+    // Position listener
     _positionSubscription = _audioPlayer.positionStream.listen((position) {
       if (state is MusicLoaded) {
-        add(UpdatePosition(position: position));
+        final currentState = state as MusicLoaded;
+        emit(currentState.copyWith(position: position));
+        // _handleSeelStateChange(currentState, position);
       }
     });
 
-    _audioPlayer.playerStateStream.listen((playerState) {
-      if (playerState.processingState == ProcessingState.completed) {
-        _playNext();
-      }
-    });
+    // Completion listener
+    _playerStateSubscription = _audioPlayer.playerStateStream.listen((playerState) {
+  if (playerState.processingState == ProcessingState.completed && !_isNextCalled) {
+    _isNextCalled = true;
+    final currentState = state as MusicLoaded;
+    _playNext(currentState);
+    Future.delayed(const Duration(milliseconds: 500), () => _isNextCalled = false);
+  }
+});
 
-    _audioPlayer.playerStateStream.listen((playerState) async {
+    // Playback state listener
+    _playbackStateSubscription = _audioPlayer.playerStateStream.listen((playerState) async {
       if (state is! MusicLoaded) return;
       final currentState = state as MusicLoaded;
 
-      // Chỉ gọi API khi trạng thái thực sự thay đổi
-      if (_previousState?.playing != playerState.playing) {
+      // Only handle state changes if the playing state actually changed
+      if (_previousState?.playing != playerState.playing || _previousState == null) {
         _previousState = playerState;
-
-        if (_audioPlayer.playing) {
-          final updateStatePlay = await apiService.postWithCookies(
-              'musics/playMusic/${currentState.currentMusicId}', {});
-          if (updateStatePlay["status"] == 200) {
-            print("Cập nhật trạng thái phát nhạc thành công trên server.");
-            final duration = _audioPlayer.duration ?? Duration.zero;
-            final position = _audioPlayer.position;
-
-            emit(currentState.copyWith(
-              currentMusicId: currentState.currentMusicId,
-              isPlaying: true,
-              duration: duration,
-              position: position,
-            ));
-          }
-        } else {
-          final response =
-              await apiService.postWithCookies('musics/pauseMusic', {});
-          if (response["status"] == 200) {
-            print("Cập nhật trạng thái pause nhạc thành công trên server.");
-            emit(currentState.copyWith(isPlaying: false));
-          }
-        }
+          await _handlePlaybackStateChange(currentState, playerState);
       }
     });
+  }
+
+  Future<void> _handleSeelStateChange(MusicLoaded  currentState,Duration position) async {
+      final response = await apiService.postWithCookies(
+        'musics/seekMusic/${currentState.currentMusicId}?seek=${position.inSeconds}',
+        {},
+      );
+  }
+
+  Future<void> _handlePlaybackStateChange(MusicLoaded currentState, PlayerState playerState) async {
+
+    if (playerState.playing) {
+
+      final updateStatePlay = await apiService.postWithCookies(
+          'musics/playMusic/${currentState.currentMusicId}', {});
+      if (updateStatePlay["status"] == 200) {
+        final duration = _audioPlayer.duration ?? Duration.zero;
+        final position = _audioPlayer.position;
+
+        emit(currentState.copyWith(
+          isPlaying: true,
+          duration: duration,
+          position: position,
+        ));
+        print("Cập nhật trạng thái phát nhạc thành công trên server.");
+      }
+    } else {
+      final response = await apiService.postWithCookies('musics/pauseMusic', {});
+      if (response["status"] == 200) {
+        print("Cập nhật trạng thái pause nhạc thành công trên server.");
+        emit(currentState.copyWith(isPlaying: false));
+      }
+    }
   }
 
   @override
   Future<void> close() {
     _positionSubscription?.cancel();
+    _playerStateSubscription?.cancel();
+    _playbackStateSubscription?.cancel();
+    _audioPlayer.dispose();
     return super.close();
   }
 
@@ -148,7 +175,8 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   }
 
   Future<void> _onPlayMusicOnFirst(
-      PlayStreamMusic event, Emitter<MusicState> emit) async {
+    PlayStreamMusic event, Emitter<MusicState> emit) async {
+    await _audioPlayer.pause();
     try {
       final response =
           await apiService.getStream('musics/getStreamMusic/${event.musicId}');
@@ -172,22 +200,13 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         await _audioPlayer.setAudioSource(audioSource);
         await _audioPlayer.load();
         await Future.delayed(Duration(milliseconds: 500));
-        if (state is MusicLoaded) {
-          final currentState = state as MusicLoaded;
-          emit(currentState.copyWith(
-            currentMusicId: event.musicId,
-            isPlaying: true,
-            position: Duration.zero, // Reset vị trí phát nhạc
-          ));
-        } else {
-          emit(MusicLoaded(
-            currentMusicId: event.musicId,
-            isPlaying: true,
-            duration: _audioPlayer.duration ?? Duration.zero,
-            position: Duration.zero,
-          ));
-        }
-        await _audioPlayer.play(); // Phát nhạc ngay
+        emit(MusicLoaded(
+        currentMusicId: event.musicId,
+        isPlaying: true,
+        duration: _audioPlayer.duration!,
+        position: Duration.zero,
+      ));
+        await _audioPlayer.play();
       }
     } catch (e) {
       print("Lỗi khi phát nhạc: $e");
@@ -195,8 +214,12 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   }
 
   Future<void> _onPauseMusic(PauseMusic event, Emitter<MusicState> emit) async {
-    if (state is MusicLoaded) {
+   try{
       await _audioPlayer.pause();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Lỗi khi gửi yêu cầu tạm dừng nhạc lên server: $e");
+      }
     }
   }
 
@@ -211,10 +234,12 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   }
 
   Future<void> _onSeekMusic(SeekMusic event, Emitter<MusicState> emit) async {
-    await _audioPlayer.seek(event.position);
-    if (state is MusicLoaded) {
-      final currentState = state as MusicLoaded;
-      emit(currentState.copyWith(position: event.position));
+    try{
+      await _audioPlayer.seek(event.position);
+    }catch (e) {
+      if (kDebugMode) {
+        print("Lỗi khi seek nhạc: $e");
+      }
     }
   }
 
@@ -226,12 +251,22 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     }
   }
 
-  Future<void> _playNext() async {
-    if (playlist.isNotEmpty) {
-      final random = Random();
-      final nextIndex = random.nextInt(playlist.length);
-      final nextMusicId = playlist[nextIndex];
-      add(PlayStreamMusic(musicId: nextMusicId));
+  Future<void> _playNext(MusicLoaded currentState) async {
+  if (playlist.isNotEmpty) {
+    final random = Random();
+    
+    if (playlist.length == 1) {
+      add(PlayStreamMusic(musicId: playlist[0]));
+      return;
     }
+
+    String nextMusicId;
+    do {
+      nextMusicId = playlist[random.nextInt(playlist.length)];
+    } while (nextMusicId == currentState.currentMusicId); 
+
+    print("Next music: $nextMusicId");
+    add(PlayStreamMusic(musicId: nextMusicId));
   }
+}
 }

@@ -25,8 +25,8 @@ class ApiService {
       await _initCookieJar(); // Đảm bảo _cookieJar khởi tạo hoàn tất
 
       _dio = Dio(BaseOptions(
-        receiveTimeout: Duration(seconds: 20), // Tăng thời gian nhận phản hồi
-        connectTimeout: Duration(seconds: 10), // Thời gian kết nối tối đa
+        receiveTimeout: Duration(seconds: 100), // Tăng thời gian nhận phản hồi
+        connectTimeout: Duration(seconds: 30), // Thời gian kết nối tối đa
         baseUrl: dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '',
         headers: {'Content-Type': 'application/json'},
         validateStatus: (status) => status != null && status <= 500,

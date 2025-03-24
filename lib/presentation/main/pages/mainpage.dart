@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tunezmusic/common/widgets/loading/loading.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
@@ -13,6 +14,7 @@ import 'package:tunezmusic/data/services/authManager.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/MusicPlayerWidget.dart';
 import 'package:tunezmusic/presentation/dashboard/pages/dashboard_page.dart';
+import 'package:tunezmusic/presentation/history/pages/history.dart';
 import 'package:tunezmusic/presentation/library/pages/library.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_event.dart';
@@ -21,6 +23,7 @@ import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_event.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_state.dart';
 import 'package:tunezmusic/presentation/main/widgets/item_bottom_nav.dart';
+import 'package:tunezmusic/presentation/playlistDetail/pages/playlistDetail.dart';
 import 'package:tunezmusic/presentation/premium/pages/premium.dart';
 import 'package:tunezmusic/presentation/search/pages/search.dart';
 
@@ -41,6 +44,7 @@ class _MainPageState extends State<MainPage> {
     const SearchWidget(),
     const LibraryWidget(),
     const PremiumWidget(),
+    HistoryPage(),
   ];
 
   @override
@@ -124,7 +128,7 @@ class _MainPageState extends State<MainPage> {
         resizeToAvoidBottomInset: false,
         backgroundColor: AppColors.darkBackground,
         body: isLoading
-            ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+            ? DotsLoading()
             : Stack(
                 children: [
                   BlocBuilder<NavigationBloc, NavigationState>(
@@ -205,7 +209,7 @@ class _MainPageState extends State<MainPage> {
                                       },
                                     );
                                   }).toList(),
-                                  currentIndex: state.selectedIndex > 3
+                                  currentIndex: state.selectedIndex > 3 || state.selectedIndex < 0
                                       ? 0
                                       : state.selectedIndex,
                                   selectedItemColor: Colors.white,

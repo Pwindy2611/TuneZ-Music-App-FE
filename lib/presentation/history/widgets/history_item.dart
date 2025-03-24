@@ -4,16 +4,16 @@ import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_state.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
 
-class TrackItemWidget extends StatefulWidget {
-  final Map track;
+class HistoryItemWidget extends StatefulWidget {
+  final Map tracks;
   final Color? prColor;
-  const TrackItemWidget({super.key, required this.track, this.prColor});
+  const HistoryItemWidget({super.key, required this.tracks, this.prColor});
 
   @override
-  _TrackItemWidgetState createState() => _TrackItemWidgetState();
+  _HistoryItemWidgetState createState() => _HistoryItemWidgetState();
 }
 
-class _TrackItemWidgetState extends State<TrackItemWidget> {
+class _HistoryItemWidgetState extends State<HistoryItemWidget> {
   double _scale = 1.0;
 
   void _onTapDown(TapDownDetails details) {
@@ -35,7 +35,7 @@ class _TrackItemWidgetState extends State<TrackItemWidget> {
         bool _isPlaying = false;
 
         if (state is MusicLoaded) {
-          _isPlaying = state.currentMusicId == widget.track['_id'];
+          _isPlaying = state.currentMusicId == widget.tracks['_id'];
         }
 
         return GestureDetector(
@@ -44,7 +44,7 @@ class _TrackItemWidgetState extends State<TrackItemWidget> {
           onTap: () {
             context
                 .read<MusicBloc>()
-                .add(PlayStreamMusic(musicId: widget.track['_id']));
+                .add(PlayStreamMusic(musicId: widget.tracks['_id']));
           },
           child: AnimatedScale(
             scale: _scale,
@@ -65,9 +65,9 @@ class _TrackItemWidgetState extends State<TrackItemWidget> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: Image.network(
-                          widget.track['imgPath'],
-                          width: 40,
-                          height: 40,
+                          widget.tracks['imgPath'],
+                          width: 60,
+                          height: 60,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -76,17 +76,33 @@ class _TrackItemWidgetState extends State<TrackItemWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.track['name'],
+                            widget.tracks['name'],
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: _isPlaying ? widget.prColor : Colors.white,
+                              fontSize: 16,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            widget.track['artist'],
+                          Row(
+                            children: [
+                               Text(
+                            widget.tracks['artist'],
                             style: const TextStyle(color: Colors.grey),
                           ),
+                          SizedBox(width: 4),
+                          Text(
+                            '•',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                           SizedBox(width: 4),
+                          Text(
+                            widget.tracks['genres'],
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                            ]
+                          )
+                         
                         ],
                       ),
                     ],

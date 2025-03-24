@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tunezmusic/presentation/history/pages/history.dart';
 import 'package:tunezmusic/presentation/playlistDetail/pages/playlistDetail.dart';
 
 // Sự kiện điều hướng
@@ -13,6 +14,8 @@ class OpenPlaylistDetailEvent extends NavigationEvent {
   final Map playlist;
   OpenPlaylistDetailEvent(this.playlist);
 }
+
+class OpenHistoryEvent extends NavigationEvent {}
 
 // Trạng thái điều hướng
 class NavigationState {
@@ -31,11 +34,15 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
     });
 
     on<OpenPlaylistDetailEvent>((event, emit) {
-      emit(NavigationState(selectedIndex: 4, playlistDetail: PlayListDetail(playlist: event.playlist)));
+      emit(NavigationState(selectedIndex: -1, playlistDetail: PlayListDetail(playlist: event.playlist)));
     });
 
     on<ClosePlaylistDetailEvent>((event, emit) {
       emit(NavigationState(selectedIndex: 0)); // Trở lại trang chính
     });
+
+    on<OpenHistoryEvent>((event, emit) {
+  emit(NavigationState(selectedIndex: 4)); // Chỉ số 3 tượng trưng cho trang History
+});
   }
 }
