@@ -30,7 +30,12 @@ class PauseMusic extends MusicEvent {
   List<Object?> get props => [musicId];
 }
 
-class UpdatePlaylist extends MusicEvent {}
+class UpdatePlaylist extends MusicEvent {
+  final List<dynamic> allTracks;
+  UpdatePlaylist({required this.allTracks});
+  @override
+  List<Object?> get props => [allTracks];
+}
 
 class SeekMusic extends MusicEvent {
   final Duration position;
@@ -45,3 +50,5 @@ class UpdatePosition extends MusicEvent {
   @override
   List<Object?> get props => [position];
 }
+
+class RanDomTrackEvent extends MusicEvent {}

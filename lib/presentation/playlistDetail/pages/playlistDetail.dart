@@ -42,7 +42,6 @@ class _PlayListDetailState extends State<PlayListDetail> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _extractDominantColor();
-    _savePlaylistToSharedPreferences();
     if (kDebugMode) {
       print(widget.playlist);
     }
@@ -115,32 +114,6 @@ class _PlayListDetailState extends State<PlayListDetail> {
       return "$minutes phút";
     }
   }
-
-Future<void> _savePlaylistToSharedPreferences() async {
-  final prefs = await SharedPreferences.getInstance();
-  final String? existingTracksJson = prefs.getString('playlist_tracks');
-
-  final List<String> tracks = widget.playlist['tracks']
-      .map<String>((track) => track['_id'].toString())
-      .toList();
-
-  final String newTracksJson = jsonEncode(tracks);
-
-  if (existingTracksJson != null) {
-    // Ép kiểu danh sách đã lưu thành List<String>
-    final List<dynamic> existingTracksDynamic = jsonDecode(existingTracksJson);
-    final List<String> existingTracks = existingTracksDynamic.map((e) => e.toString()).toList();
-
-    if (const ListEquality().equals(existingTracks, tracks)) {
-      return; // Không cần cập nhật nếu danh sách không thay đổi
-    }
-
-    await prefs.remove('playlist_tracks'); // Xóa dữ liệu cũ
-  }
-
-  await prefs.setString('playlist_tracks', newTracksJson); // Lưu danh sách mới
-  context.read<MusicBloc>().add(UpdatePlaylist()); // Cập nhật state
-}
 
   @override
   void dispose() {
@@ -450,14 +423,66 @@ Future<void> _savePlaylistToSharedPreferences() async {
                                               SizedBox(
                                                 width: 20,
                                               ),
-                                              IconButton(
-                                                  onPressed: () {},
+                                              BlocBuilder<MusicBloc,
+                                                      MusicState>(
+                                                  builder: (context, state) {
+                                                if (state is MusicLoaded) {
+                                                  final currentTrack = widget
+                                                      .playlist['tracks']
+                                                      .firstWhere(
+                                                    (track) =>
+                                                        track['_id'] ==
+                                                        state.currentMusicId,
+                                                    orElse: () => null,
+                                                  );
+
+                                                  if (currentTrack != null) {
+                                                    return IconButton(
+                                                      onPressed: () {
+                                                        context
+                                                            .read<MusicBloc>()
+                                                            .add(
+                                                              state.isPlaying
+                                                                  ? PauseMusic(
+                                                                      musicId: state
+                                                                          .currentMusicId)
+                                                                  : PlayMusic(
+                                                                      musicId: state
+                                                                          .currentMusicId),
+                                                            );
+                                                      },
+                                                      icon: Icon(
+                                                        state.isPlaying
+                                                            ? Icons
+                                                                .pause_circle_filled_rounded
+                                                            : Icons
+                                                                .play_circle_fill_rounded,
+                                                        color: _dominantColor,
+                                                        size: 60,
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                                return IconButton(
+                                                  onPressed: () {
+                                                    context
+                                                        .read<MusicBloc>()
+                                                        .add(UpdatePlaylist(
+                                                            allTracks:
+                                                                widget.playlist['tracks'].map((t) => t['_id'].toString()).toList()));
+                                                    context
+                                                        .read<MusicBloc>()
+                                                        .add(
+                                                            RanDomTrackEvent());
+                                                  },
                                                   icon: Icon(
                                                     Icons
                                                         .play_circle_fill_rounded,
                                                     color: _dominantColor,
                                                     size: 60,
-                                                  ))
+                                                  ),
+                                                );
+                                              })
                                             ],
                                           )
                                         ],
@@ -479,6 +504,7 @@ Future<void> _savePlaylistToSharedPreferences() async {
                                       return TrackItemWidget(
                                         track: track,
                                         prColor: _dominantColor,
+                                        allTracks: widget. playlist['tracks'].map((t) => t['_id'].toString()).toList(),
                                       );
                                     }).toList(),
                                   ),

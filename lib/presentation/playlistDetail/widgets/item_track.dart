@@ -7,7 +7,9 @@ import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
 class TrackItemWidget extends StatefulWidget {
   final Map track;
   final Color? prColor;
-  const TrackItemWidget({super.key, required this.track, this.prColor});
+  final List<dynamic> allTracks;
+  
+  const TrackItemWidget({super.key, required this.track, this.prColor, required this.allTracks});
 
   @override
   _TrackItemWidgetState createState() => _TrackItemWidgetState();
@@ -42,6 +44,9 @@ class _TrackItemWidgetState extends State<TrackItemWidget> {
           onTapDown: _onTapDown,
           onTapUp: _onTapUp,
           onTap: () {
+            context.read<MusicBloc>().add(UpdatePlaylist(
+              allTracks: widget.allTracks
+            ));
             context
                 .read<MusicBloc>()
                 .add(PlayStreamMusic(musicId: widget.track['_id']));

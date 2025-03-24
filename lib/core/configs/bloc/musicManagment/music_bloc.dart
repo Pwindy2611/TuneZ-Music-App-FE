@@ -19,7 +19,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerStateSubscription;
   StreamSubscription? _playbackStateSubscription;
-  List<String> playlist = []; // Danh sách phát
+  List<dynamic> playlist = [];
   PlayerState? _previousState;
   bool _isNextCalled = false;
   MusicBloc(this.apiService) : super(MusicInitial()) {
@@ -30,7 +30,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     on<PlayMusic>(_playMusic);
     on<UpdatePosition>(_onUpdatePosition);
     on<UpdatePlaylist>(_onUpdatePlaylist);
-    _loadPlaylistFromSharedPreferences();
+    on<RanDomTrackEvent>(_randomTrack);
     _setupEventListeners();
   }
 
@@ -45,39 +45,44 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     });
 
     // Completion listener
-    _playerStateSubscription = _audioPlayer.playerStateStream.listen((playerState) {
-  if (playerState.processingState == ProcessingState.completed && !_isNextCalled) {
-    _isNextCalled = true;
-    final currentState = state as MusicLoaded;
-    _playNext(currentState);
-    Future.delayed(const Duration(milliseconds: 500), () => _isNextCalled = false);
-  }
-});
+    _playerStateSubscription =
+        _audioPlayer.playerStateStream.listen((playerState) {
+      if (playerState.processingState == ProcessingState.completed &&
+          !_isNextCalled) {
+        _isNextCalled = true;
+        final currentState = state as MusicLoaded;
+        _playNext(currentState);
+        Future.delayed(
+            const Duration(milliseconds: 500), () => _isNextCalled = false);
+      }
+    });
 
     // Playback state listener
-    _playbackStateSubscription = _audioPlayer.playerStateStream.listen((playerState) async {
+    _playbackStateSubscription =
+        _audioPlayer.playerStateStream.listen((playerState) async {
       if (state is! MusicLoaded) return;
       final currentState = state as MusicLoaded;
 
       // Only handle state changes if the playing state actually changed
-      if (_previousState?.playing != playerState.playing || _previousState == null) {
+      if (_previousState?.playing != playerState.playing ||
+          _previousState == null) {
         _previousState = playerState;
-          await _handlePlaybackStateChange(currentState, playerState);
+        await _handlePlaybackStateChange(currentState, playerState);
       }
     });
   }
 
-  Future<void> _handleSeelStateChange(MusicLoaded  currentState,Duration position) async {
-      final response = await apiService.postWithCookies(
-        'musics/seekMusic/${currentState.currentMusicId}?seek=${position.inSeconds}',
-        {},
-      );
+  Future<void> _handleSeelStateChange(
+      MusicLoaded currentState, Duration position) async {
+    final response = await apiService.postWithCookies(
+      'musics/seekMusic/${currentState.currentMusicId}?seek=${position.inSeconds}',
+      {},
+    );
   }
 
-  Future<void> _handlePlaybackStateChange(MusicLoaded currentState, PlayerState playerState) async {
-
+  Future<void> _handlePlaybackStateChange(
+      MusicLoaded currentState, PlayerState playerState) async {
     if (playerState.playing) {
-
       final updateStatePlay = await apiService.postWithCookies(
           'musics/playMusic/${currentState.currentMusicId}', {});
       if (updateStatePlay["status"] == 200) {
@@ -92,7 +97,8 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         print("Cập nhật trạng thái phát nhạc thành công trên server.");
       }
     } else {
-      final response = await apiService.postWithCookies('musics/pauseMusic', {});
+      final response =
+          await apiService.postWithCookies('musics/pauseMusic', {});
       if (response["status"] == 200) {
         print("Cập nhật trạng thái pause nhạc thành công trên server.");
         emit(currentState.copyWith(isPlaying: false));
@@ -109,20 +115,34 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     return super.close();
   }
 
-  Future<void> _loadPlaylistFromSharedPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    final playlistString = prefs.getString('playlist_tracks');
-    if (playlistString != null) {
-      playlist = List<String>.from(jsonDecode(playlistString));
-      if (kDebugMode) {
-        print("Playlist: $playlist");
-      }
-    }
-  }
-
   Future<void> _onUpdatePlaylist(
       UpdatePlaylist event, Emitter<MusicState> emit) async {
-    await _loadPlaylistFromSharedPreferences();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Lấy playlist hiện tại từ SharedPreferences
+    final String? savedPlaylistJson = prefs.getString('playlist');
+    List<dynamic> savedPlaylist = [];
+
+    if (savedPlaylistJson != null) {
+      try {
+        // Giải mã JSON thành danh sách List<dynamic>
+        final List<dynamic> decodedJson = json.decode(savedPlaylistJson);
+        savedPlaylist = decodedJson;
+      } catch (e) {
+        print("Lỗi khi giải mã playlist từ SharedPreferences: $e");
+      }
+    }
+
+    // So sánh playlist mới với playlist đã lưu
+    if (!listEquals(event.allTracks, savedPlaylist)) {
+      playlist = event.allTracks;
+
+      // Lưu playlist mới vào SharedPreferences
+      await prefs.setString('playlist', json.encode(playlist));
+      print("Playlist updated & saved: $playlist");
+    } else {
+      print("Playlist không thay đổi, không cần lưu.");
+    }
   }
 
   Future<void> _onLoadUserMusicState(
@@ -175,7 +195,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   }
 
   Future<void> _onPlayMusicOnFirst(
-    PlayStreamMusic event, Emitter<MusicState> emit) async {
+      PlayStreamMusic event, Emitter<MusicState> emit) async {
     await _audioPlayer.pause();
     try {
       final response =
@@ -201,11 +221,11 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         await _audioPlayer.load();
         await Future.delayed(Duration(milliseconds: 500));
         emit(MusicLoaded(
-        currentMusicId: event.musicId,
-        isPlaying: true,
-        duration: _audioPlayer.duration!,
-        position: Duration.zero,
-      ));
+          currentMusicId: event.musicId,
+          isPlaying: true,
+          duration: _audioPlayer.duration!,
+          position: Duration.zero,
+        ));
         await _audioPlayer.play();
       }
     } catch (e) {
@@ -214,7 +234,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   }
 
   Future<void> _onPauseMusic(PauseMusic event, Emitter<MusicState> emit) async {
-   try{
+    try {
       await _audioPlayer.pause();
     } catch (e) {
       if (kDebugMode) {
@@ -234,9 +254,9 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   }
 
   Future<void> _onSeekMusic(SeekMusic event, Emitter<MusicState> emit) async {
-    try{
+    try {
       await _audioPlayer.seek(event.position);
-    }catch (e) {
+    } catch (e) {
       if (kDebugMode) {
         print("Lỗi khi seek nhạc: $e");
       }
@@ -252,21 +272,66 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   }
 
   Future<void> _playNext(MusicLoaded currentState) async {
-  if (playlist.isNotEmpty) {
-    final random = Random();
-    
-    if (playlist.length == 1) {
-      add(PlayStreamMusic(musicId: playlist[0]));
-      return;
+    // Nếu playlist rỗng, lấy từ SharedPreferences
+    if (playlist.isEmpty) {
+      await _loadPlaylistFromStorage();
     }
 
-    String nextMusicId;
-    do {
-      nextMusicId = playlist[random.nextInt(playlist.length)];
-    } while (nextMusicId == currentState.currentMusicId); 
+    if (playlist.isNotEmpty) {
+      final random = Random();
 
-    print("Next music: $nextMusicId");
-    add(PlayStreamMusic(musicId: nextMusicId));
+      if (playlist.length == 1) {
+        add(PlayStreamMusic(musicId: playlist[0]));
+        return;
+      }
+
+      String nextMusicId;
+      do {
+        nextMusicId = playlist[random.nextInt(playlist.length)];
+      } while (nextMusicId == currentState.currentMusicId);
+
+      print("Next music: $nextMusicId");
+      add(PlayStreamMusic(musicId: nextMusicId));
+    } else {
+      print("Playlist vẫn trống, không thể phát nhạc.");
+    }
   }
-}
+
+  Future<void> _randomTrack(
+      RanDomTrackEvent event, Emitter<MusicState> emit) async {
+    // Nếu playlist rỗng, lấy từ SharedPreferences
+    if (playlist.isEmpty) {
+      await _loadPlaylistFromStorage();
+    }
+
+    if (playlist.isNotEmpty) {
+      final random = Random();
+
+      if (playlist.length == 1) {
+        add(PlayStreamMusic(musicId: playlist[0]));
+        return;
+      }
+
+      String musicId = playlist[random.nextInt(playlist.length)];
+      print("Random music: $musicId");
+      add(PlayStreamMusic(musicId: musicId));
+    } else {
+      print("Playlist vẫn trống, không thể phát nhạc.");
+    }
+  }
+
+  Future<void> _loadPlaylistFromStorage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? savedPlaylistJson = prefs.getString('playlist');
+
+    if (savedPlaylistJson != null) {
+      try {
+        List<dynamic> loadedPlaylist = json.decode(savedPlaylistJson);
+        playlist = loadedPlaylist;
+        print("Playlist loaded from SharedPreferences: $playlist");
+      } catch (e) {
+        print("Lỗi khi giải mã playlist từ SharedPreferences: $e");
+      }
+    }
+  }
 }
