@@ -33,7 +33,8 @@ dependencies:
   palette_generator: ^0.3.3
   just_audio: ^0.9.18
   just_audio_background: ^0.0.1-beta.15
-  audio_service: ^0.18.17
+  intl: ^0.18.0
+  android_intent_plus: ^4.0.3
   
 dev_dependencies:
   flutter_test:

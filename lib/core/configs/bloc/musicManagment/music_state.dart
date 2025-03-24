@@ -7,6 +7,8 @@ abstract class MusicState extends Equatable {
 
 class MusicInitial extends MusicState {}
 
+class MusicLoading extends MusicState {}
+
 class MusicNewAccount extends MusicState {}
 class MusicLoaded extends MusicState {
   final String currentMusicId;

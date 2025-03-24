@@ -70,6 +70,7 @@
     </application>
 
     <queries>
+    <package android:name="vn.momo.platform" />
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>

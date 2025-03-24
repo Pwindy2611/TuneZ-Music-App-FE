@@ -62,7 +62,13 @@ class _HistoryPageState extends State<HistoryPage> {
                     ));
               },
             );
-          } else if (state is HistoryError) {
+          }
+          else if(state is NoHistory){
+            return Center(
+              child: Text("Không có lưu trữ gần đây",style: TextStyle(color: Colors.white,fontSize: 22, fontWeight: FontWeight.bold),),
+            );
+          }
+           else if (state is HistoryError) {
             return Center(
               child: Text("Lỗi: ${state.message}",
                   style: TextStyle(color: Colors.red)),

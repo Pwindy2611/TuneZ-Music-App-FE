@@ -23,7 +23,9 @@ import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_event.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_state.dart';
 import 'package:tunezmusic/presentation/main/widgets/item_bottom_nav.dart';
-import 'package:tunezmusic/presentation/playlistDetail/pages/playlistDetail.dart';
+import 'package:tunezmusic/presentation/premium/bloc/subscriptions_bloc.dart';
+import 'package:tunezmusic/presentation/premium/bloc/subscriptions_event.dart';
+import 'package:tunezmusic/presentation/premium/bloc/subscriptions_state.dart';
 import 'package:tunezmusic/presentation/premium/pages/premium.dart';
 import 'package:tunezmusic/presentation/search/pages/search.dart';
 
@@ -63,13 +65,15 @@ class _MainPageState extends State<MainPage> {
       final userPlaylistBloc = context.read<HomePlaylistBloc>();
       final artistFollowBloc = context.read<ArtistFollowBloc>();
       final musicBloc = context.read<MusicBloc>();
+      final paymentBloc = context.read<SubscriptionsBloc>();
 
       userPlaylistBloc.add(FetchHomePlaylistEvent(savedUserId));
       artistFollowBloc.add(FetchArtistFollowEvent(savedUserId));
       musicBloc.add(LoadUserMusicState());
+      paymentBloc.add(FetchSubscriptions());
 
       await _waitForBlocsToComplete(
-          [userPlaylistBloc, artistFollowBloc, musicBloc]);
+          [userPlaylistBloc, artistFollowBloc, musicBloc, paymentBloc]);
     }
 
     if (mounted) {
@@ -86,11 +90,14 @@ class _MainPageState extends State<MainPage> {
     void checkStates() {
       for (final bloc in blocs) {
         if (bloc.state is HomePlaylistLoading ||
-            bloc.state is ArtistFollowLoading) {
+            bloc.state is ArtistFollowLoading ||
+            bloc.state is MusicLoading ||
+            bloc.state is SubscriptionsLoading) {
           return;
         }
         if (bloc.state is HomePlaylistError ||
-            bloc.state is ArtistFollowError) {
+            bloc.state is ArtistFollowError ||
+            bloc.state is SubscriptionsFailure) {
           _logoutAndRedirect();
           return;
         }

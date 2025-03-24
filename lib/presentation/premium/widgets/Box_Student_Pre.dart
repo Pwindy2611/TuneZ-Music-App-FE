@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:tunezmusic/common/widgets/button/basic_button.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/premium/bloc/payment_bloc.dart';
+import 'package:tunezmusic/presentation/premium/bloc/payment_event.dart';
 
 class BuildPremiumStudentFeatures extends StatelessWidget {
+  final Map<String, dynamic> plan;
+  BuildPremiumStudentFeatures({super.key, required this.plan});
+   String formatPrice(int price) {
+    return NumberFormat("#,###", "vi_VN").format(price);
+  }
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -44,7 +53,7 @@ class BuildPremiumStudentFeatures extends StatelessWidget {
                     height: 10,
                   ),
                   Text(
-                    "Student",
+                     plan["name"],
                     style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -59,38 +68,10 @@ class BuildPremiumStudentFeatures extends StatelessWidget {
                         fontSize: 18,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
                       ),
                       children: [
-                        TextSpan(text: '29.500 '),
-                        TextSpan(
-                          text: 'đ',
-                          style: TextStyle(
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' cho 2 tháng \n',
-                        ),
-                        TextSpan(
-                            text: 'Sau đó là 29.500 ',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.focusInput,
-                                fontWeight: FontWeight.normal)),
-                        TextSpan(
-                          text: 'đ',
-                          style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              fontSize: 12,
-                              color: AppColors.focusInput,
-                              fontWeight: FontWeight.normal),
-                        ),
-                        TextSpan(
-                            text: '/tháng.',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.focusInput,
-                                fontWeight: FontWeight.normal)),
+                        TextSpan(text: "${formatPrice(plan["price"])}đ",),
                       ],
                     ),
                   ),
@@ -105,27 +86,31 @@ class BuildPremiumStudentFeatures extends StatelessWidget {
                   SizedBox(
                     height: 20,
                   ),
-                  Text.rich(
+                   Text.rich(
                     TextSpan(
                       style: TextStyle(
                           fontWeight: FontWeight.normal,
                           fontSize: 16,
                           color: Colors.white),
-                      children: [
-                        TextSpan(text: "• 1 tài khoản Premium đã xác minh\n"),
-                        TextSpan(
-                            text: "• Giảm giá cho sinh viên đủ điều kiện\n"),
-                        TextSpan(text: "• Hủy bất cứ lúc nào \n"),
-                        TextSpan(text: "• Đăng ký hoặc thanh toán một lần"),
-                      ],
+                      children: List.generate(
+                        plan["features"].length,
+                        (index) =>
+                            TextSpan(text: "• ${plan["features"][index]}\n"),
+                      ),
                     ),
                   ),
                   SizedBox(
                     height: 15,
                   ),
                   BasicAppButton(
-                    onPressed: () {},
-                    title: "Mua Premium Student",
+                    onPressed: () {
+                       context.read<PaymentBloc>().add(SelectPayment(
+                        itemId: plan["id"],
+                        amount: plan["price"],
+                        paymentMethod:"MOMO"
+                      ));
+                    },
+                    title: "Mua ${plan["name"]}",
                     height: 20,
                     colors: Colors.black,
                     icon: null,
@@ -147,23 +132,7 @@ class BuildPremiumStudentFeatures extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                         children: [
-                          TextSpan(text: '29.500 '),
-                          TextSpan(
-                            text: "đ",
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                          TextSpan(text: ' cho 2 tháng, sau đó là 29.500 '),
-                          TextSpan(
-                            text: "đ",
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                          TextSpan(
-                              text:
-                                  '/tháng. Ưu đãi chỉ dành cho sinh viên các trường đại học và cao đẳng được công nhận và nếu bạn chưa từng dùng gói Premium. '),
+                          TextSpan(text: '${plan["description"]}\n'),
                           TextSpan(
                             text: "Có áp dụng điều khoản",
                             style: TextStyle(
@@ -195,7 +164,7 @@ class BuildPremiumStudentFeatures extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
               children: [
-                TextSpan(text: '59.000 '),
+                TextSpan(text: '${formatPrice(plan["price"])} '),
                 TextSpan(
                   text: 'đ',
                   style: TextStyle(
@@ -203,7 +172,7 @@ class BuildPremiumStudentFeatures extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: ' cho 2 tháng',
+                  text: ' cho 1 tháng',
                 ),
               ],
             ),

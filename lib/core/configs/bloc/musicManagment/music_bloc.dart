@@ -147,6 +147,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
 
   Future<void> _onLoadUserMusicState(
       LoadUserMusicState event, Emitter<MusicState> emit) async {
+    emit(MusicLoading());
     final response = await apiService.get('musics/getUserMusicState');
     if (kDebugMode) {
       print(response);
@@ -154,7 +155,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     if (response["status"] == 200) {
       final streamAudio = await apiService.getStream(
           'musics/getStreamMusic/${response['state']['currentMusicId']}');
-
+      print('Load stream music success: ${streamAudio?.statusCode}');
       if (streamAudio?.statusCode == 200) {
         final audioBytes = await streamAudio!.stream.fold<Uint8List>(
           Uint8List(0),
@@ -188,6 +189,8 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         ));
         await _audioPlayer.seek(position);
         add(UpdatePosition(position: position));
+      } else {
+        emit(MusicNewAccount());
       }
     } else {
       emit(MusicNewAccount());
@@ -196,10 +199,16 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
 
   Future<void> _onPlayMusicOnFirst(
       PlayStreamMusic event, Emitter<MusicState> emit) async {
-    await _audioPlayer.pause();
+    if (state is! MusicNewAccount) {
+      final currentState = state as MusicLoaded;
+      if (currentState.isPlaying) {
+        await _audioPlayer.pause();
+      }
+    }
+
     try {
       final response =
-          await apiService.getStream('musics/getStreamMusic/${event.musicId}');
+          await apiService.getStream('musics/getStreamMusic/-OKQntZhPbvkgLhuaH11');
 
       if (response?.statusCode == 200) {
         final audioBytes = await response!.stream.fold<Uint8List>(

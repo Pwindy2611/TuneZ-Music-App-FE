@@ -11,3 +11,5 @@ class HistoryError extends HistoryState {
   final String message;
   HistoryError(this.message);
 }
+
+class NoHistory extends HistoryState {}

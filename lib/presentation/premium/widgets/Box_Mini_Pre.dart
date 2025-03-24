@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:tunezmusic/common/widgets/button/basic_button.dart';
 import 'package:tunezmusic/core/configs/assets/app_vectors.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/premium/bloc/payment_bloc.dart';
+import 'package:tunezmusic/presentation/premium/bloc/payment_event.dart';
 
 class BuildPremiumMiniFeatures extends StatelessWidget {
-  const BuildPremiumMiniFeatures({super.key});
+  final Map<String, dynamic> plan;
+  const BuildPremiumMiniFeatures({super.key, required this.plan});
+  String formatPrice(int price) {
+  return NumberFormat("#,###", "vi_VN").format(price);
+}
   @override
   Widget build(BuildContext context) {
   return Container(
@@ -42,7 +50,7 @@ class BuildPremiumMiniFeatures extends StatelessWidget {
               height: 10,
             ),
             Text(
-              "Mini",
+              plan["name"],
               style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -52,26 +60,18 @@ class BuildPremiumMiniFeatures extends StatelessWidget {
               height: 10,
             ),
             RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                children: [
-                  TextSpan(text: '10.500 '),
-                  TextSpan(
-                    text: 'đ',
-                    style: TextStyle(
-                      decoration: TextDecoration.underline,
+                    text: TextSpan(
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                      children: [
+                        TextSpan(text: "${formatPrice(plan["price"])}đ",),
+                      ],
                     ),
                   ),
-                  TextSpan(
-                    text: ' cho 1 tuần',
-                  ),
-                ],
-              ),
-            ),
             SizedBox(
               height: 20,
             ),
@@ -83,30 +83,31 @@ class BuildPremiumMiniFeatures extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Text.rich(
-              TextSpan(
-                style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 16,
-                    color: Colors.white),
-                children: [
-                  TextSpan(
-                      text:
-                          "• 1 tài khoản Premium chỉ dành cho thiết bị di động \n"),
-                  TextSpan(
-                      text:
-                          "• Nghe tối đa 30 bài hát trên 1 thiết bị khi không có kết nối mạng \n"),
-                  TextSpan(text: "• Thanh toán một lần \n"),
-                  TextSpan(text: "• Chất lượng âm thanh cơ bản"),
-                ],
-              ),
-            ),
+             Text.rich(
+                    TextSpan(
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                          color: Colors.white),
+                      children: List.generate(
+                        plan["features"].length,
+                        (index) =>
+                            TextSpan(text: "• ${plan["features"][index]}\n"),
+                      ),
+                    ),
+                  ),
             SizedBox(
               height: 15,
             ),
             BasicAppButton(
-              onPressed: () {},
-              title: "Mua Premium Mini",
+              onPressed: () {
+                 context.read<PaymentBloc>().add(SelectPayment(
+                        itemId: plan["id"],
+                        amount: plan["price"],
+                        paymentMethod:"MOMO"
+                      ));
+              },
+              title: "Mua ${plan["name"]}",
               height: 20,
               colors: Colors.black,
               icon: null,
@@ -118,17 +119,27 @@ class BuildPremiumMiniFeatures extends StatelessWidget {
               height: 15,
             ),
             SizedBox(
-              width: double.infinity, // Chiếm toàn bộ chiều ngang
-              child: Text(
-                "Có áp dụng điều khoản",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.grey,
-                  decoration: TextDecoration.underline,
-                ),
-                textAlign: TextAlign.center, // Căn giữa
-              ),
-            )
+                    width: double.infinity, // Chiếm toàn bộ chiều ngang
+                    child: RichText(
+                      textAlign: TextAlign.center, // Căn giữa,
+                      text: TextSpan(
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: [
+                          TextSpan(text: '${plan["description"]}\n'),
+                          TextSpan(
+                            text: "Có áp dụng điều khoản",
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
           ],
         )),
   );

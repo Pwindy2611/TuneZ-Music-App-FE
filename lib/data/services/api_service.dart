@@ -26,7 +26,7 @@ class ApiService {
 
       _dio = Dio(BaseOptions(
         receiveTimeout: Duration(seconds: 100), // Tăng thời gian nhận phản hồi
-        connectTimeout: Duration(seconds: 30), // Thời gian kết nối tối đa
+        connectTimeout: Duration(seconds: 60), // Thời gian kết nối tối đa
         baseUrl: dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '',
         headers: {'Content-Type': 'application/json'},
         validateStatus: (status) => status != null && status <= 500,

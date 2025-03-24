@@ -20,7 +20,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         print("Response from API: $response");
       }
 
-      if (response["success"] == true && response.containsKey("data")) {
+      if (response["status"] == 200 && response.containsKey("data")) {
         List<Map<String, dynamic>> playlists =
             List<Map<String, dynamic>>.from(response["data"]);
 
@@ -29,14 +29,14 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         }
 
         emit(HistoryLoaded(playlists));
-      } else {
-        emit(HistoryError("Dữ liệu không hợp lệ hoặc không có lịch sử nhạc."));
+      }else {
+           emit(NoHistory());
       }
     } catch (e) {
       if (kDebugMode) {
         print("Fetch History Error: $e");
       }
-      emit(HistoryError("Lỗi khi tải lịch sử: ${e.toString()}"));
+         emit(NoHistory());
     }
   }
 }
