@@ -6,11 +6,12 @@ import 'package:tunezmusic/presentation/library/bloc/libraryUI_state.dart';
 class ArtistFollowItem extends StatefulWidget {
   final String image;
   final String name;
+  final VoidCallback callback;
 
   const ArtistFollowItem({
     super.key,
     required this.name,
-    required this.image,
+    required this.image, required this.callback,
   });
 
   @override
@@ -26,6 +27,7 @@ class _ArtistFollowItemState extends State<ArtistFollowItem> {
         onTapDown: (_) => setState(() => isTapped = true),
         onTapUp: (_) => setState(() => isTapped = false),
         onTapCancel: () => setState(() => isTapped = false),
+        onTap: widget.callback,
         child:
             BlocBuilder<LibraryUIBloc, LibraryState>(builder: (context, state) {
           bool isListView = state.isGridView;

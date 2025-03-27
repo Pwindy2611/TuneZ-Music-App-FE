@@ -9,6 +9,7 @@ import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_theme.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 import 'package:tunezmusic/data/services/firebase_options.dart';
+import 'package:tunezmusic/presentation/artistDetails/bloc/artist_tracks_bloc.dart';
 import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_bloc.dart';
 import 'package:tunezmusic/presentation/history/bloc/history_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_bloc.dart';
@@ -39,7 +40,7 @@ void main() async {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
-    );
+    ); 
   }
 
   await FirebaseAuth.instance.setSettings(
@@ -68,6 +69,7 @@ void main() async {
     BlocProvider(create: (context) => HistoryBloc(ApiService())),
     BlocProvider(create: (context) => PaymentBloc(ApiService())),
     BlocProvider(create: (context) => SubscriptionsBloc(ApiService())),
+    BlocProvider(create: (context) => ArtistTracksBloc(ApiService())),
   ], child: MainApp()));
 }
 

@@ -8,7 +8,7 @@ abstract class MusicEvent extends Equatable {
 }
 
 class LoadUserMusicState extends MusicEvent {}
-
+class LogoutEvent extends MusicEvent {}
 class PlayStreamMusic extends MusicEvent {
   final String musicId;
   PlayStreamMusic({required this.musicId});

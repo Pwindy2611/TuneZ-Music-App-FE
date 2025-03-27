@@ -10,7 +10,7 @@ import 'user_playlist_state.dart';
 class HomePlaylistBloc extends Bloc<HomePlaylistEvent, HomePlaylistState> {
   final ApiService apiService;
 
-  HomePlaylistBloc(this.apiService) : super(HomePlaylistLoading()) {
+  HomePlaylistBloc(this.apiService) : super(HomePlaylistInitial()) {
     on<FetchHomePlaylistEvent>(_fetchHomePlaylist);
   }
 

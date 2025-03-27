@@ -20,11 +20,12 @@ class MusicPlayerWidget extends StatefulWidget {
 class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
   late StreamSubscription _lifecycleSubscription;
   Color _dominantColor = AppColors.darkGrey;
+  String? _currentMusicUrl=  "https://th.bing.com/th/id/OIP.bLCU8HwL546JIVk9vLV3NAHaHa?rs=1&pid=ImgDetMain";
 
   @override
   void initState() {
     super.initState();
-    _extractDominantColor();
+    _currentMusicUrl;
     SystemChannels.lifecycle.setMessageHandler((msg) async {
       if (msg == AppLifecycleState.detached.toString()) {
         _pauseMusicBeforeExit();
@@ -42,19 +43,29 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
     }
   }
 
-  Future<void> _extractDominantColor() async {
-    final PaletteGenerator paletteGenerator =
-        await PaletteGenerator.fromImageProvider(NetworkImage(
-            "https://res.cloudinary.com/doxgamppz/image/upload/v1741004370/music-storage/files/-OKQwablya3-O5gS7c4-/theflob.png"));
+Future<void> _extractDominantColor(String musicUrl) async {
+  if (musicUrl.isEmpty) return;
 
-    final newColor = paletteGenerator.dominantColor?.color ?? AppColors.grey;
-    if (newColor != _dominantColor) {
-      setState(() {
-        _dominantColor = newColor;
-        Future.delayed(Duration(seconds: 1), () {});
-      });
-    }
+  final PaletteGenerator paletteGenerator =
+      await PaletteGenerator.fromImageProvider(NetworkImage(musicUrl));
+
+  final Color newColor = paletteGenerator.dominantColor?.color ?? AppColors.grey;
+
+  // Thay đổi tone màu (tăng hoặc giảm sáng)
+  final double factor = 0.8; // Giá trị < 1 làm tối, > 1 làm sáng
+  final Color tonedColor = Color.fromARGB(
+    newColor.alpha,
+    (newColor.red * factor).clamp(0, 255).toInt(),
+    (newColor.green * factor).clamp(0, 255).toInt(),
+    (newColor.blue * factor).clamp(0, 255).toInt(),
+  );
+
+  if (tonedColor != _dominantColor) {
+    setState(() {
+      _dominantColor = tonedColor;
+    });
   }
+}
 
   @override
   void dispose() {
@@ -67,6 +78,12 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
     return BlocBuilder<MusicBloc, MusicState>(
       builder: (context, state) {
         if (state is MusicLoaded) {
+          if (_currentMusicUrl != state.musicUrl) {
+          _currentMusicUrl = state.musicUrl;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _extractDominantColor(_currentMusicUrl!);
+          });
+        }
           return Positioned(
               bottom: 70,
               left: 10,
@@ -87,7 +104,8 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: Image.network(
-                              "https://res.cloudinary.com/doxgamppz/image/upload/v1741004370/music-storage/files/-OKQwablya3-O5gS7c4-/theflob.png",
+                              key: ValueKey(state.musicUrl),
+                              state.musicUrl??"https://th.bing.com/th/id/OIP.bLCU8HwL546JIVk9vLV3NAHaHa?rs=1&pid=ImgDetMain",
                               width: 40,
                               height: 40,
                               fit: BoxFit.cover,
@@ -104,7 +122,7 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
                                     180,
                                 height: 20,
                                 child: Marquee(
-                                  text: "Tán gái 505",
+                                  text: state.name??"",
                                   style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
@@ -117,7 +135,7 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
                                 ),
                               ),
                               Text(
-                                "LowG",
+                                state.artist??"",
                                 style:
                                     TextStyle(fontSize: 12, color: Colors.grey),
                                 textAlign: TextAlign.left,

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
@@ -31,6 +32,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     on<UpdatePosition>(_onUpdatePosition);
     on<UpdatePlaylist>(_onUpdatePlaylist);
     on<RanDomTrackEvent>(_randomTrack);
+    on<LogoutEvent>(_onLogout);
     _setupEventListeners();
   }
 
@@ -47,13 +49,20 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     // Completion listener
     _playerStateSubscription =
         _audioPlayer.playerStateStream.listen((playerState) {
-      if (playerState.processingState == ProcessingState.completed &&
-          !_isNextCalled) {
-        _isNextCalled = true;
-        final currentState = state as MusicLoaded;
-        _playNext(currentState);
-        Future.delayed(
-            const Duration(milliseconds: 500), () => _isNextCalled = false);
+      if (playerState.processingState == ProcessingState.completed) {
+        if (state is! MusicNewAccount) {
+          final currentState = state as MusicLoaded;
+          if (currentState.isPlaying) {
+            _audioPlayer.pause();
+          }
+        }
+        if (!_isNextCalled) {
+          _isNextCalled = true;
+          final currentState = state as MusicLoaded;
+          _playNext(currentState);
+          Future.delayed(
+              const Duration(milliseconds: 500), () => _isNextCalled = false);
+        }
       }
     });
 
@@ -70,14 +79,29 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         await _handlePlaybackStateChange(currentState, playerState);
       }
     });
+
+    // Add seek position listener
+    _audioPlayer.positionStream.listen((position) async {
+      if (state is MusicLoaded) {
+        final currentState = state as MusicLoaded;
+        await _handleSeelStateChange(currentState, position);
+      }
+    });
   }
 
   Future<void> _handleSeelStateChange(
       MusicLoaded currentState, Duration position) async {
-    final response = await apiService.postWithCookies(
-      'musics/seekMusic/${currentState.currentMusicId}?seek=${position.inSeconds}',
-      {},
-    );
+    try {
+      final response = await apiService.postWithCookies(
+        'musics/seekMusic/${currentState.currentMusicId}?seek=${position.inSeconds}',
+        {},
+      );
+      if (response["status"] == 200) {
+        print("Cập nhật vị trí seek nhạc thành công trên server.");
+      }
+    } catch (e) {
+      print("Lỗi khi cập nhật vị trí seek nhạc: $e");
+    }
   }
 
   Future<void> _handlePlaybackStateChange(
@@ -148,94 +172,130 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   Future<void> _onLoadUserMusicState(
       LoadUserMusicState event, Emitter<MusicState> emit) async {
     emit(MusicLoading());
+
     final response = await apiService.get('musics/getUserMusicState');
-    if (kDebugMode) {
-      print(response);
-    }
-    if (response["status"] == 200) {
-      final streamAudio = await apiService.getStream(
-          'musics/getStreamMusic/${response['state']['currentMusicId']}');
-      print('Load stream music success: ${streamAudio?.statusCode}');
-      if (streamAudio?.statusCode == 200) {
-        final audioBytes = await streamAudio!.stream.fold<Uint8List>(
-          Uint8List(0),
-          (previous, element) => Uint8List.fromList([...previous, ...element]),
-        );
-        final audioSource = AudioSource.uri(
-          Uri.parse('data:audio/mp3;base64,${base64Encode(audioBytes)}'),
-          tag: MediaItem(
-            id: response['state']['currentMusicId'],
-            album: "Album",
-            title: "Title",
-            artist: "Artist",
-            artUri: Uri.parse(
-                "https://res.cloudinary.com/doxgamppz/image/upload/v1741004370/music-storage/files/-OKQwablya3-O5gS7c4-/theflob.png"),
-          ),
-        );
-        await _audioPlayer.setAudioSource(audioSource);
-        await _audioPlayer.load();
-        await Future.delayed(Duration(milliseconds: 500));
-        final currentMusicId = response['state']['currentMusicId'];
-        final isPlaying = response['state']['isPlaying'];
-        final position =
-            Duration(seconds: (response['state']['timestamp'] ?? 0).toInt());
-        final duration = _audioPlayer.duration ?? Duration.zero;
-        emit(MusicLoaded(
-          currentMusicId: currentMusicId,
-          isPlaying: isPlaying,
-          duration: duration,
-          position: position,
-          musicUrl: null,
-        ));
-        await _audioPlayer.seek(position);
-        add(UpdatePosition(position: position));
-      } else {
-        emit(MusicNewAccount());
-      }
-    } else {
+    if (kDebugMode) print(response);
+
+    if (response["status"] != 200) {
       emit(MusicNewAccount());
+      return;
     }
+
+    final currentMusicId = response['state']['currentMusicId'];
+    final isPlaying = response['state']['isPlaying'];
+    final position =
+        Duration(seconds: (response['state']['timestamp'] ?? 0).toInt());
+    print(position);
+
+    // Không chờ mà lấy stream nhạc song song
+    final streamFuture =
+        apiService.getStream('musics/getStreamMusic/$currentMusicId');
+
+    final streamAudio = await streamFuture;
+    if (streamAudio?.statusCode != 200) {
+      emit(MusicNewAccount());
+      return;
+    }
+    final infoTracks =
+        await apiService.get('musics/getMusicInfo/$currentMusicId');
+
+    if (infoTracks['status'] != 200) {
+      emit(MusicNewAccount());
+      return;
+    }
+    final data = infoTracks['data'];
+    final imgTracks = data['imgPath'];
+    final nameTracks = data['name'];
+    final artistTracks = data['artist'];
+
+    // Dùng BytesBuilder thay vì fold() để tối ưu hiệu suất
+    final bytesBuilder = BytesBuilder();
+    await for (final chunk in streamAudio!.stream) {
+      bytesBuilder.add(chunk);
+    }
+    final audioBytes = bytesBuilder.toBytes();
+
+    final audioSource = AudioSource.uri(
+      Uri.parse('data:audio/mp3;base64,${base64Encode(audioBytes)}'),
+      tag: MediaItem(
+        id: currentMusicId,
+        album: nameTracks,
+        title: nameTracks,
+        artist: artistTracks,
+        artUri: Uri.parse(imgTracks),
+      ),
+    );
+
+    // Đặt nguồn phát nhưng không cần chờ `load()`
+    await _audioPlayer.setAudioSource(audioSource);
+    await _audioPlayer.load();
+    Duration? duration;
+    while (duration == null) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      duration = _audioPlayer.duration;
+    }
+    emit(MusicLoaded(
+      name: nameTracks,
+      artist: artistTracks,
+      currentMusicId: currentMusicId,
+      isPlaying: isPlaying,
+      duration: duration,
+      position: position,
+      musicUrl: imgTracks,
+    ));
+    _audioPlayer.seek(position);
+    add(UpdatePosition(position: position));
   }
 
   Future<void> _onPlayMusicOnFirst(
       PlayStreamMusic event, Emitter<MusicState> emit) async {
-    if (state is! MusicNewAccount) {
-      final currentState = state as MusicLoaded;
-      if (currentState.isPlaying) {
-        await _audioPlayer.pause();
-      }
-    }
-
     try {
       final response =
-          await apiService.getStream('musics/getStreamMusic/-OKQntZhPbvkgLhuaH11');
-
+          await apiService.getStream('musics/getStreamMusic/${event.musicId}');
       if (response?.statusCode == 200) {
-        final audioBytes = await response!.stream.fold<Uint8List>(
-          Uint8List(0),
-          (previous, element) => Uint8List.fromList([...previous, ...element]),
-        );
+        print('Load stream music success');
+        final infoTracks =
+            await apiService.get('musics/getMusicInfo/${event.musicId}');
+
+        if (infoTracks['status'] != 200) {
+          return;
+        }
+        final data = infoTracks['data'];
+        final imgTracks = data['imgPath'];
+        final nameTracks = data['name'];
+        final artistTracks = data['artist'];
+        emit(MusicLoaded(
+          name: nameTracks,
+          artist: artistTracks,
+          currentMusicId: event.musicId,
+          isPlaying: false,
+          duration: _audioPlayer.duration ?? Duration.zero, // Tránh null
+          position: Duration.zero,
+          musicUrl: imgTracks,
+        ));
+        final bytesBuilder = BytesBuilder();
+        await for (final chunk in response!.stream) {
+          bytesBuilder.add(chunk);
+          print("Nhận được ${chunk.length} bytes từ stream");
+        }
+        final audioBytes = bytesBuilder.toBytes();
+
         final audioSource = AudioSource.uri(
           Uri.parse('data:audio/mp3;base64,${base64Encode(audioBytes)}'),
           tag: MediaItem(
-              id: event.musicId,
-              album: "Album",
-              title: "Title",
-              artist: "Artist",
-              artUri: Uri.parse(
-                  "https://res.cloudinary.com/doxgamppz/image/upload/v1741006711/music-storage/files/-OKR4XE1EW2njsGEM2Yh/tangai505.jpg")),
+            id: event.musicId,
+            album: nameTracks,
+            title: nameTracks,
+            artist: artistTracks,
+            artUri: Uri.parse(imgTracks),
+          ),
         );
-
+        // Đặt nguồn phát không cần chờ load()
         await _audioPlayer.setAudioSource(audioSource);
         await _audioPlayer.load();
-        await Future.delayed(Duration(milliseconds: 500));
-        emit(MusicLoaded(
-          currentMusicId: event.musicId,
-          isPlaying: true,
-          duration: _audioPlayer.duration!,
-          position: Duration.zero,
-        ));
-        await _audioPlayer.play();
+        _audioPlayer.play();
+      } else {
+        print("Lỗi tải stream nhạc: StatusCode ${response?.statusCode}");
       }
     } catch (e) {
       print("Lỗi khi phát nhạc: $e");
@@ -341,6 +401,20 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       } catch (e) {
         print("Lỗi khi giải mã playlist từ SharedPreferences: $e");
       }
+    }
+  }
+
+  Future<void> _onLogout(LogoutEvent event, Emitter<MusicState> emit) async {
+    try {
+      await _audioPlayer.pause(); // Dừng nhạc nếu đang phát
+      await _audioPlayer.stop();
+      await _audioPlayer.dispose(); // Giải phóng tài nguyên
+      _positionSubscription?.cancel();
+      _playerStateSubscription?.cancel();
+      _playbackStateSubscription?.cancel();
+      emit(MusicInitial()); // Quay về trạng thái ban đầu
+    } catch (e) {
+      print("Lỗi khi logout: $e");
     }
   }
 }

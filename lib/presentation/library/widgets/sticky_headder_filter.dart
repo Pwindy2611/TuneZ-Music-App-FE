@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_bloc.dart';
-import 'package:tunezmusic/presentation/library/bloc/libraryUI_event.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_state.dart';
 
 class StickyHeaderFilterDelegate extends SliverPersistentHeaderDelegate {

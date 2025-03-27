@@ -46,7 +46,7 @@ class _MainPageState extends State<MainPage> {
     const SearchWidget(),
     const LibraryWidget(),
     const PremiumWidget(),
-    HistoryPage(),
+    const HistoryPage(),
   ];
 
   @override
@@ -55,34 +55,52 @@ class _MainPageState extends State<MainPage> {
     _fetchUserData();
   }
 
-  Future<void> _fetchUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedUserId = prefs.getString('userId');
+Future<void> _fetchUserData() async {
+  final prefs = await SharedPreferences.getInstance();
+  final savedUserId = prefs.getString('userId');
 
-    if (kDebugMode) print('Saved User ID: $savedUserId');
+  if (kDebugMode) print('Saved User ID: $savedUserId');
 
-    if (savedUserId != null && savedUserId.isNotEmpty) {
-      final userPlaylistBloc = context.read<HomePlaylistBloc>();
-      final artistFollowBloc = context.read<ArtistFollowBloc>();
-      final musicBloc = context.read<MusicBloc>();
-      final paymentBloc = context.read<SubscriptionsBloc>();
+  if (savedUserId != null && savedUserId.isNotEmpty) {
+    final userPlaylistBloc = context.read<HomePlaylistBloc>();
+    final artistFollowBloc = context.read<ArtistFollowBloc>();
+    final musicBloc = context.read<MusicBloc>();
+    final paymentBloc = context.read<SubscriptionsBloc>();
 
+    bool shouldWait = false;
+
+    // Chỉ fetch nếu chưa có dữ liệu
+    if (userPlaylistBloc.state is HomePlaylistInitial) {
       userPlaylistBloc.add(FetchHomePlaylistEvent(savedUserId));
+      shouldWait = true;
+    }
+    if (artistFollowBloc.state is ArtistFollowInitial) {
       artistFollowBloc.add(FetchArtistFollowEvent(savedUserId));
+      shouldWait = true;
+    }
+    if (musicBloc.state is MusicInitial) {
       musicBloc.add(LoadUserMusicState());
+      shouldWait = true;
+    }
+    if (paymentBloc.state is SubscriptionsInitial) {
       paymentBloc.add(FetchSubscriptions());
+      shouldWait = true;
+    }
 
+    // Chỉ chờ nếu ít nhất một Bloc cần fetch dữ liệu
+    if (shouldWait) {
       await _waitForBlocsToComplete(
           [userPlaylistBloc, artistFollowBloc, musicBloc, paymentBloc]);
     }
-
-    if (mounted) {
-      setState(() {
-        userId = savedUserId;
-        isLoading = false;
-      });
-    }
   }
+
+  if (mounted) {
+    setState(() {
+      userId = savedUserId;
+      isLoading = false;
+    });
+  }
+}
 
   Future<void> _waitForBlocsToComplete(List<Bloc> blocs) async {
     final completer = Completer<void>();
@@ -121,7 +139,7 @@ class _MainPageState extends State<MainPage> {
     return WillPopScope(
       onWillPop: () async {
         final navBloc = context.read<NavigationBloc>();
-        if (navBloc.state.playlistDetail != null) {
+        if (navBloc.state.playlistDetail != null || navBloc.state.artistDetail != null) {
           navBloc.add(ChangeTabEvent(0));
           return false;
         }
@@ -144,10 +162,12 @@ class _MainPageState extends State<MainPage> {
                       Positioned.fill(
                           child: state.playlistDetail != null
                               ? state.playlistDetail!
-                              : IndexedStack(
-                                  index: state.selectedIndex,
-                                  children: _widgetOptions,
-                                )),
+                              : state.artistDetail != null
+                                  ? state.artistDetail!
+                                  : IndexedStack(
+                                      index: state.selectedIndex,
+                                      children: _widgetOptions,
+                                    )),
                       Positioned(
                           left: 0,
                           right: 0,
@@ -216,7 +236,7 @@ class _MainPageState extends State<MainPage> {
                                       },
                                     );
                                   }).toList(),
-                                  currentIndex: state.selectedIndex > 3 || state.selectedIndex < 0
+                                  currentIndex: state.selectedIndex > 3
                                       ? 0
                                       : state.selectedIndex,
                                   selectedItemColor: Colors.white,
@@ -236,7 +256,7 @@ class _MainPageState extends State<MainPage> {
                     left: 10,
                     right: 10,
                     bottom:
-                        65, // Điều chỉnh vị trí để không đè lên BottomNavigationBar
+                        65,
                     child: MusicPlayerWidget(),
                   ),
                 ],

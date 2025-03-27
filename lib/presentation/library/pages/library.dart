@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/common/widgets/drawer/nav_left.dart';
 import 'package:tunezmusic/common/widgets/loading/loading.dart';
+import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_state.dart';
@@ -47,9 +48,8 @@ class _LibraryWidgetState extends State<LibraryWidget> {
             floating: true,
             automaticallyImplyLeading: false,
             flexibleSpace: FlexibleSpaceBar(
-              background:
-                  StickyHeaderLibraryDelegate(scaffoldKey: _scaffoldKey)
-                      .build(context, 0, false),
+              background: StickyHeaderLibraryDelegate(scaffoldKey: _scaffoldKey)
+                  .build(context, 0, false),
             ),
           ),
           SliverPersistentHeader(
@@ -102,6 +102,11 @@ class _LibraryWidgetState extends State<LibraryWidget> {
                 ...artistList.map((artist) => Column(
                       children: [
                         ArtistFollowItem(
+                          callback: () {
+                            context.read<NavigationBloc>().add(
+                                OpenArtistDetailEvent(
+                                    artist['img'], artist['name']));
+                          },
                           name: artist['name'] ?? 'Unknown Artist',
                           image: artist['img'] ?? '',
                         ),
@@ -139,6 +144,11 @@ class _LibraryWidgetState extends State<LibraryWidget> {
             if (selectedIndex == 3 || selectedIndex == 0) ...[
               if (artistList.isNotEmpty)
                 ...artistList.map((artist) => ArtistFollowItem(
+                      callback: () {
+                        context.read<NavigationBloc>().add(
+                            OpenArtistDetailEvent(
+                                artist['img'], artist['name']));
+                      },
                       name: artist['name'] ?? 'Unknown Artist',
                       image: artist['img'] ?? '',
                     )),

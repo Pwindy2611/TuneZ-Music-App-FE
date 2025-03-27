@@ -1,5 +1,6 @@
 abstract class ArtistFollowState {}
 
+class ArtistFollowInitial extends ArtistFollowState{}
 class ArtistFollowLoading extends ArtistFollowState {}
 
 class ArtistFollowLoaded extends ArtistFollowState {

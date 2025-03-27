@@ -16,8 +16,13 @@ class MusicLoaded extends MusicState {
   final Duration duration;
   final Duration position;
   final String? musicUrl;
+  final String? name;
+  final String? artist;
 
-  MusicLoaded({
+  MusicLoaded(
+     {  
+    required this.name, 
+    required this.artist,
     required this.currentMusicId,
     required this.isPlaying,
     required this.duration,
@@ -31,8 +36,12 @@ class MusicLoaded extends MusicState {
     Duration? duration,
     Duration? position,
     String? musicUrl,
+    String? name,
+    String? artist,
   }) {
     return MusicLoaded(
+      name: name?? this.name,
+      artist: artist?? this.artist,
       currentMusicId: currentMusicId ?? this.currentMusicId,
       isPlaying: isPlaying ?? this.isPlaying,
       duration: duration ?? this.duration,

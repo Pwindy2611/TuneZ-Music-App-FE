@@ -1,5 +1,6 @@
 abstract class HomePlaylistState {}
 
+class HomePlaylistInitial extends HomePlaylistState {}
 class HomePlaylistLoading extends HomePlaylistState {}
 
 class HomePlaylistLoaded extends HomePlaylistState {

@@ -97,7 +97,7 @@ class LoginOptionPage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 50),
                   child: Text(
-                    'Đăng nhập vào spotify',
+                    'Đăng nhập vào TuneZ',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.w900,

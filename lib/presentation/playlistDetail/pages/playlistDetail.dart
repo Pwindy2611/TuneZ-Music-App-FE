@@ -22,7 +22,7 @@ import 'package:tunezmusic/presentation/playlistDetail/widgets/item_track.dart';
 class PlayListDetail extends StatefulWidget {
   final Map playlist;
 
-  const PlayListDetail({Key? key, required this.playlist}) : super(key: key);
+  const PlayListDetail({super.key, required this.playlist});
 
   @override
   State<PlayListDetail> createState() => _PlayListDetailState();

@@ -7,7 +7,7 @@ import 'package:tunezmusic/data/services/api_service.dart';
 class ArtistFollowBloc extends Bloc<ArtistFollowEvent, ArtistFollowState> {
   final ApiService apiService;
 
-  ArtistFollowBloc(this.apiService) : super(ArtistFollowLoading()) {
+  ArtistFollowBloc(this.apiService) : super(ArtistFollowInitial()) {
     on<FetchArtistFollowEvent>(_fetchArtistFollow);
   }
 
