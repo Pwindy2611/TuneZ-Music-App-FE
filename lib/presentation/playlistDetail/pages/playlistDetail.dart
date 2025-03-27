@@ -7,7 +7,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/common/widgets/appBar/app_Bar_playlistDetails.dart';
 import 'package:tunezmusic/common/widgets/button/playlist_Detail_button.dart';
 import 'package:tunezmusic/common/widgets/loading/loading.dart';

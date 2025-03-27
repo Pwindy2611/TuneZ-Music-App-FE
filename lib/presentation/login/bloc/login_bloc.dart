@@ -137,6 +137,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           "Lỗi liên kết tài khoản: ${error.toString()}"));
     }
   }
+  void printLongString(String text) {
+  const chunkSize = 1000; // Chia thành các phần nhỏ 1000 ký tự
+  for (int i = 0; i < text.length; i += chunkSize) {
+    print(text.substring(i, i + chunkSize > text.length ? text.length : i + chunkSize));
+  }
+}
+
 
   Future<void> handleLoginResponseByServer(
     String idToken,
@@ -160,8 +167,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         final cookies = await apiService
             .getCookies(dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '');
         if (kDebugMode) {
-          print('Cookies hiện tại: $cookies');
-        }
+  printLongString('Cookies hiện tại: $cookies');
+}
 
         // Lấy user token
         final userData = await apiService.get('users/getUserCustomToken');
