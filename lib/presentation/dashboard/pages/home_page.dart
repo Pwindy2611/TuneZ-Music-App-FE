@@ -27,88 +27,84 @@ class _homeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-          //physics: ScrollPhysics(),
-          primary: true,
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                BlocBuilder<HomePlaylistBloc, HomePlaylistState>(
-                  builder: (context, state) {
-                    if (state is HomePlaylistLoaded) {
-                      List playlistsData = state.playlist;
+      //physics: ScrollPhysics(),
+      primary: true,
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            BlocBuilder<HomePlaylistBloc, HomePlaylistState>(
+              builder: (context, state) {
+                if (state is HomePlaylistLoaded) {
+                  List playlistsData = state.playlist;
 
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: playlistsData.map((playlistGroup) {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: playlistsData.map((playlistGroup) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Hiển thị tên category
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 30, left: 15, right: 15, bottom: 15),
-                                child: Text(
-                                  playlistGroup[
-                                      "category"], // Lấy tên category từ API
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 25,
-                                    color: Colors.white,
-                                    fontFamily: "SpotifyCircularBold",
-                                  ),
-                                  textAlign: TextAlign.left,
-                                ),
+                        children: [
+                          // Hiển thị tên category
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 30, left: 15, right: 15, bottom: 15),
+                            child: Text(
+                              playlistGroup[
+                                  "category"], // Lấy tên category từ API
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                                color: Colors.white,
+                                fontFamily: "SpotifyCircularBold",
                               ),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
 
-                              // Hiển thị danh sách playlist
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15, right: 15),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children:
-                                        (playlistGroup["playlists"] as List)
-                                            .map((playlist) {
-                                      return ArtistAndPodcastersColumn(
-                                        callback: () {
-                                          context.read<NavigationBloc>().add(OpenPlaylistDetailEvent(playlist));
-                                        },
-                                        name: playlist["title"], // Tên playlist
-                                        image: playlist[
-                                            "coverImage"], // Ảnh playlist
-                                        borderRadius: 4,
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
+                          // Hiển thị danh sách playlist
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15, right: 15),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: (playlistGroup["playlists"] as List)
+                                    .map((playlist) {
+                                  return ArtistAndPodcastersColumn(
+                                    callback: () {
+                                      context.read<NavigationBloc>().add(
+                                          OpenPlaylistDetailEvent(playlist));
+                                    },
+                                    name: playlist["title"], // Tên playlist
+                                    image: playlist["coverImage"],
+                                    borderRadius: 4,
+                                  );
+                                }).toList(),
                               ),
-                            ],
-                          );
-                        }).toList(),
+                            ),
+                          ),
+                        ],
                       );
-                    } else if (state is HomePlaylistError) {
-                      return Center(
-                        child: Text(
-                          "Error: ${state.message}",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      );
-                    }
+                    }).toList(),
+                  );
+                } else if (state is HomePlaylistError) {
+                  return Center(
+                    child: Text(
+                      "Error: ${state.message}",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
 
-                    return
-                          DotsLoading();
-                  },
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(left: 15, right: 15),
-                    child: SizedBox(height: 140, width: double.infinity))
-              ]),
+                return DotsLoading();
+              },
+            ),
+            const Padding(
+                padding: EdgeInsets.only(left: 15, right: 15),
+                child: SizedBox(height: 140, width: double.infinity))
+          ]),
     );
   }
 

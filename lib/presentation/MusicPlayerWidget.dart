@@ -9,6 +9,7 @@ import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_state.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/audio_progress_bar.dart';
+import 'package:tunezmusic/presentation/popupMusicPlayDetails.dart';
 
 class MusicPlayerWidget extends StatefulWidget {
   const MusicPlayerWidget({super.key});
@@ -20,7 +21,7 @@ class MusicPlayerWidget extends StatefulWidget {
 class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
   late StreamSubscription _lifecycleSubscription;
   Color _dominantColor = AppColors.darkGrey;
-  String? _currentMusicUrl=  "https://th.bing.com/th/id/OIP.bLCU8HwL546JIVk9vLV3NAHaHa?rs=1&pid=ImgDetMain";
+  String? _currentMusicUrl = "https://th.bing.com/th/id/OIP.bLCU8HwL546JIVk9vLV3NAHaHa?rs=1&pid=ImgDetMain";
 
   @override
   void initState() {
@@ -43,28 +44,42 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
     }
   }
 
-Future<void> _extractDominantColor(String musicUrl) async {
-  if (musicUrl.isEmpty) return;
+  Future<void> _extractDominantColor(String musicUrl) async {
+    if (musicUrl.isEmpty) return;
 
-  final PaletteGenerator paletteGenerator =
-      await PaletteGenerator.fromImageProvider(NetworkImage(musicUrl));
+    final PaletteGenerator paletteGenerator =
+        await PaletteGenerator.fromImageProvider(NetworkImage(musicUrl));
 
-  final Color newColor = paletteGenerator.dominantColor?.color ?? AppColors.grey;
+    final Color newColor = paletteGenerator.dominantColor?.color ?? AppColors.grey;
 
-  // Thay đổi tone màu (tăng hoặc giảm sáng)
-  final double factor = 0.8; // Giá trị < 1 làm tối, > 1 làm sáng
-  final Color tonedColor = Color.fromARGB(
-    newColor.alpha,
-    (newColor.red * factor).clamp(0, 255).toInt(),
-    (newColor.green * factor).clamp(0, 255).toInt(),
-    (newColor.blue * factor).clamp(0, 255).toInt(),
-  );
+    // Calculate brightness (0.0 = dark, 1.0 = light)
+    final double brightness = (newColor.red * 0.299 + newColor.green * 0.587 + newColor.blue * 0.114) / 255;
 
-  if (tonedColor != _dominantColor) {
-    setState(() {
-      _dominantColor = tonedColor;
-    });
+    // Adjust factor based on brightness
+    final double factor = brightness > 0.5 ? 0.4 : 1.9; // Darken light colors, subtly lighten dark colors
+    final Color adjustedColor = Color.fromARGB(
+      newColor.alpha,
+      (newColor.red * factor).clamp(0, 255).toInt(),
+      (newColor.green * factor).clamp(0, 255).toInt(),
+      (newColor.blue * factor).clamp(0, 255).toInt(),
+    );
+
+    if (adjustedColor != _dominantColor) {
+      setState(() {
+        _dominantColor = adjustedColor;
+      });
+    }
   }
+
+  void _showMusicControlBottomSheet(BuildContext context, MusicLoaded state) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // Ensure the BottomSheet can expand fully
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return PopupMusicPlayDetails(state: state, dominantColor: _dominantColor,imgURL:_currentMusicUrl ,);
+    },
+  );
 }
 
   @override
@@ -79,20 +94,23 @@ Future<void> _extractDominantColor(String musicUrl) async {
       builder: (context, state) {
         if (state is MusicLoaded) {
           if (_currentMusicUrl != state.musicUrl) {
-          _currentMusicUrl = state.musicUrl;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _extractDominantColor(_currentMusicUrl!);
-          });
-        }
+            _currentMusicUrl = state.musicUrl;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _extractDominantColor(_currentMusicUrl!);
+            });
+          }
           return Positioned(
-              bottom: 70,
-              left: 10,
+            bottom: 70,
+            left: 10,
+            child: GestureDetector(
+              onTap: () => _showMusicControlBottomSheet(context, state),
               child: Stack(
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                        color: _dominantColor,
-                        borderRadius: BorderRadius.circular(10)),
+                      color: _dominantColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     width: MediaQuery.of(context).size.width - 20,
                     height: 60,
                     child: Padding(
@@ -105,7 +123,7 @@ Future<void> _extractDominantColor(String musicUrl) async {
                             borderRadius: BorderRadius.circular(4),
                             child: Image.network(
                               key: ValueKey(state.musicUrl),
-                              state.musicUrl??"https://th.bing.com/th/id/OIP.bLCU8HwL546JIVk9vLV3NAHaHa?rs=1&pid=ImgDetMain",
+                              state.musicUrl ?? "https://th.bing.com/th/id/OIP.bLCU8HwL546JIVk9vLV3NAHaHa?rs=1&pid=ImgDetMain",
                               width: 40,
                               height: 40,
                               fit: BoxFit.cover,
@@ -122,7 +140,7 @@ Future<void> _extractDominantColor(String musicUrl) async {
                                     180,
                                 height: 20,
                                 child: Marquee(
-                                  text: state.name??"",
+                                  text: state.name ?? "",
                                   style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
@@ -135,9 +153,8 @@ Future<void> _extractDominantColor(String musicUrl) async {
                                 ),
                               ),
                               Text(
-                                state.artist??"",
-                                style:
-                                    TextStyle(fontSize: 12, color: Colors.grey),
+                                state.artist ?? "",
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
                                 textAlign: TextAlign.left,
                               )
                             ],
@@ -180,9 +197,15 @@ Future<void> _extractDominantColor(String musicUrl) async {
                     ),
                   ),
                   Positioned(
-                      bottom: 0, right: 0, left: 0, child: AudioProgressBar())
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    child: AudioProgressBar(),
+                  ),
                 ],
-              ));
+              ),
+            ),
+          );
         }
         if (state is MusicNewAccount) {
           return SizedBox.shrink();

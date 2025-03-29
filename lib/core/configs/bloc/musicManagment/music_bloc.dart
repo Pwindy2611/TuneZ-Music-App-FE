@@ -42,7 +42,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       if (state is MusicLoaded) {
         final currentState = state as MusicLoaded;
         emit(currentState.copyWith(position: position));
-        // _handleSeelStateChange(currentState, position);
+        _handleSeelStateChange(currentState, position);
       }
     });
 
@@ -50,12 +50,6 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     _playerStateSubscription =
         _audioPlayer.playerStateStream.listen((playerState) {
       if (playerState.processingState == ProcessingState.completed) {
-        if (state is! MusicNewAccount) {
-          final currentState = state as MusicLoaded;
-          if (currentState.isPlaying) {
-            _audioPlayer.pause();
-          }
-        }
         if (!_isNextCalled) {
           _isNextCalled = true;
           final currentState = state as MusicLoaded;
@@ -77,14 +71,6 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
           _previousState == null) {
         _previousState = playerState;
         await _handlePlaybackStateChange(currentState, playerState);
-      }
-    });
-
-    // Add seek position listener
-    _audioPlayer.positionStream.listen((position) async {
-      if (state is MusicLoaded) {
-        final currentState = state as MusicLoaded;
-        await _handleSeelStateChange(currentState, position);
       }
     });
   }
@@ -184,7 +170,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     final currentMusicId = response['state']['currentMusicId'];
     final isPlaying = response['state']['isPlaying'];
     final position =
-        Duration(seconds: (response['state']['timestamp'] ?? 0).toInt());
+        Duration(seconds: (response['state']['currentTime'] ?? 0).toInt());
     print(position);
 
     // Không chờ mà lấy stream nhạc song song
@@ -249,6 +235,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
 
   Future<void> _onPlayMusicOnFirst(
       PlayStreamMusic event, Emitter<MusicState> emit) async {
+    await _audioPlayer.pause();
     try {
       final response =
           await apiService.getStream('musics/getStreamMusic/${event.musicId}');
