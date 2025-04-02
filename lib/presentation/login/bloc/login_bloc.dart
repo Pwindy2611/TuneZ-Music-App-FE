@@ -166,9 +166,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         }
         final cookies = await apiService
             .getCookies(dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '');
-        if (kDebugMode) {
-  printLongString('Cookies hiện tại: $cookies');
-}
+                    if (kDebugMode) {
+              printLongString('Cookies hiện tại: $cookies');
+            }
 
         // Lấy user token
         final userData = await apiService.get('users/getUserCustomToken');

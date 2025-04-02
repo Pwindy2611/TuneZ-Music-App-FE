@@ -8,8 +8,11 @@ import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_state.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
-import 'package:tunezmusic/presentation/audio_progress_bar.dart';
-import 'package:tunezmusic/presentation/popupMusicPlayDetails.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_bloc.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_event.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_state.dart';
+import 'package:tunezmusic/presentation/music/widgets/audio_progress_bar.dart';
+import 'package:tunezmusic/presentation/music/widgets/popupMusicPlayDetails.dart';
 
 class MusicPlayerWidget extends StatefulWidget {
   const MusicPlayerWidget({super.key});
@@ -163,14 +166,33 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
                               child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              IconButton(
+                              BlocBuilder<MusicLoveBloc,MusicLoveState>(
+                                builder: (context,loveState){
+                                  if(loveState is MusicLoveSuccess)
+                                  {
+                                    return IconButton(
+                                      icon: Icon(
+                                        Icons.check_circle_rounded,
+                                        size: 30,
+                                        color: const Color.fromARGB(255, 79, 170, 82),
+                                      ),
+                                      onPressed: () {
+                                      },
+                                    );
+                                  }
+                                  return  IconButton(
                                   padding: EdgeInsets.zero,
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    context.read<MusicLoveBloc>().add(SaveLoveMusicEvent(state.currentMusicId));
+                                  },
                                   icon: Icon(
                                     Icons.add_circle_outline_sharp,
                                     size: 28,
                                     color: Colors.white,
-                                  )),
+                                  )
+                                );
+                                },
+                              ),
                               IconButton(
                                 padding: EdgeInsets.zero,
                                 icon: Icon(

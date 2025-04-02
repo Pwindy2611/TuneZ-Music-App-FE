@@ -78,13 +78,10 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   Future<void> _handleSeelStateChange(
       MusicLoaded currentState, Duration position) async {
     try {
-      final response = await apiService.postWithCookies(
+      await apiService.postWithCookies(
         'musics/seekMusic/${currentState.currentMusicId}?seek=${position.inSeconds}',
         {},
       );
-      if (response["status"] == 200) {
-        print("Cập nhật vị trí seek nhạc thành công trên server.");
-      }
     } catch (e) {
       print("Lỗi khi cập nhật vị trí seek nhạc: $e");
     }

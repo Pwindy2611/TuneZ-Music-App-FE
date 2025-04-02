@@ -19,6 +19,7 @@ import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_bloc.dart';
 import 'package:tunezmusic/presentation/premium/bloc/payment_bloc.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_bloc.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
@@ -40,7 +41,7 @@ void main() async {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
-    ); 
+    );
   }
 
   await FirebaseAuth.instance.setSettings(
@@ -70,6 +71,7 @@ void main() async {
     BlocProvider(create: (context) => PaymentBloc(ApiService())),
     BlocProvider(create: (context) => SubscriptionsBloc(ApiService())),
     BlocProvider(create: (context) => ArtistTracksBloc(ApiService())),
+    BlocProvider(create: (context) => MusicLoveBloc(ApiService())),
   ], child: MainApp()));
 }
 

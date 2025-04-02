@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -393,18 +391,21 @@ class _PlayListDetailState extends State<PlayListDetail> {
                                                     Icons
                                                         .add_circle_outline_sharp,
                                                     size: 28,
+                                                    color: Colors.white,
                                                   )),
                                               IconButton(
                                                   onPressed: () {},
                                                   icon: Icon(
                                                     Icons.downloading_sharp,
                                                     size: 28,
+                                                    color: Colors.white,
                                                   )),
                                               IconButton(
                                                   onPressed: () {},
                                                   icon: Icon(
                                                     Icons.more_vert_outlined,
                                                     size: 28,
+                                                    color: Colors.white,
                                                   ))
                                             ],
                                           ),
