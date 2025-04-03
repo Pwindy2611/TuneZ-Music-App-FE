@@ -13,6 +13,7 @@ import 'package:tunezmusic/presentation/artistDetails/bloc/artist_tracks_bloc.da
 import 'package:tunezmusic/presentation/artistSelection/bloc/ArtistSelection_bloc.dart';
 import 'package:tunezmusic/presentation/history/bloc/history_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_bloc.dart';
+import 'package:tunezmusic/presentation/library/bloc/music_love_list_bloc.dart';
 import 'package:tunezmusic/presentation/login/bloc/login_bloc.dart';
 import 'package:tunezmusic/presentation/main/bloc/recent_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
@@ -58,27 +59,46 @@ void main() async {
     androidNotificationOngoing: true,
   );
 
-  runApp(MultiBlocProvider(providers: [
-    BlocProvider(create: (context) => HomePlaylistBloc(ApiService())),
-    BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
-    BlocProvider(create: (context) => ArtistFollowBloc(ApiService())),
-    BlocProvider(create: (context) => LoginBloc(ApiService())),
-    BlocProvider(create: (context) => ArtistSelectionBloc(ApiService())),
-    BlocProvider(create: (context) => LibraryUIBloc()),
-    BlocProvider(create: (context) => NavigationBloc()),
-    BlocProvider(create: (context) => MusicBloc(ApiService())),
-    BlocProvider(create: (context) => HistoryBloc(ApiService())),
-    BlocProvider(create: (context) => PaymentBloc(ApiService())),
-    BlocProvider(create: (context) => SubscriptionsBloc(ApiService())),
-    BlocProvider(create: (context) => ArtistTracksBloc(ApiService())),
-    BlocProvider(create: (context) => MusicLoveBloc(ApiService())),
-  ], child: MainApp()));
+runApp(
+  MultiBlocProvider(
+    providers: [
+      BlocProvider(create: (context) => HomePlaylistBloc(ApiService())),
+      BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
+      BlocProvider(create: (context) => ArtistFollowBloc(ApiService())),
+      BlocProvider(create: (context) => LoginBloc(ApiService())),
+      BlocProvider(create: (context) => ArtistSelectionBloc(ApiService())),
+      BlocProvider(create: (context) => LibraryUIBloc()),
+      BlocProvider(create: (context) => NavigationBloc()),
+      BlocProvider(
+        create: (context) => MusicLoveListBloc(ApiService()),
+      ),
+      BlocProvider(
+        create: (context) => MusicLoveBloc(
+          ApiService(),
+          context.read<MusicLoveListBloc>(),
+        ),
+      ),
+      BlocProvider(
+        create: (context) => MusicBloc(
+          ApiService(),
+          context.read<MusicLoveBloc>(),
+        ),
+      ),
+      BlocProvider(create: (context) => HistoryBloc(ApiService())),
+      BlocProvider(create: (context) => PaymentBloc(ApiService())),
+      BlocProvider(create: (context) => SubscriptionsBloc(ApiService())),
+      BlocProvider(create: (context) => ArtistTracksBloc(ApiService())),
+    ],
+    child: MainApp(),
+  ),
+);
 }
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
+
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',

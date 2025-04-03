@@ -9,10 +9,13 @@ import 'package:tunezmusic/presentation/library/bloc/artist_follow_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/artist_follow_state.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_bloc.dart';
 import 'package:tunezmusic/presentation/library/bloc/libraryUI_state.dart';
+import 'package:tunezmusic/presentation/library/bloc/music_love_list_bloc.dart';
+import 'package:tunezmusic/presentation/library/bloc/music_love_list_state.dart';
 import 'package:tunezmusic/presentation/library/widgets/add_artist_btn.dart';
 import 'package:tunezmusic/presentation/library/widgets/add_podcast_btn.dart';
 import 'package:tunezmusic/presentation/library/widgets/artist_follow_item.dart';
 import 'package:tunezmusic/presentation/library/widgets/save_item_playlist.dart';
+import 'package:tunezmusic/presentation/library/widgets/save_love_playlist.dart';
 import 'package:tunezmusic/presentation/library/widgets/sticky_header_delegate.dart';
 import 'package:tunezmusic/presentation/library/widgets/sticky_header_optionNav.dart';
 import 'package:tunezmusic/presentation/library/widgets/sticky_headder_filter.dart';
@@ -97,6 +100,18 @@ class _LibraryWidgetState extends State<LibraryWidget> {
       builder: (context, selectedIndex, child) {
         return ListView(
           children: [
+            BlocBuilder<MusicLoveListBloc, MusicLoveListState>(
+                builder: (context, musicLoveState) {
+              final hasMusicLoveData = musicLoveState is MusicLoveListLoaded &&
+                  musicLoveState.musicList.isNotEmpty;
+              if ((selectedIndex == 1 || selectedIndex == 0) &&
+                  hasMusicLoveData) {
+                return SaveLovePlaylistWidget();
+              }
+              return SizedBox
+                  .shrink(); // Trả về widget rỗng nếu không có dữ liệu
+            }),
+            const SizedBox(height: 20),
             if (selectedIndex == 3 || selectedIndex == 0) ...[
               if (artistList.isNotEmpty)
                 ...artistList.map((artist) => Column(
@@ -141,6 +156,17 @@ class _LibraryWidgetState extends State<LibraryWidget> {
           mainAxisSpacing: 10,
           childAspectRatio: 0.7,
           children: [
+              BlocBuilder<MusicLoveListBloc, MusicLoveListState>(
+                builder: (context, musicLoveState) {
+              final hasMusicLoveData = musicLoveState is MusicLoveListLoaded &&
+                  musicLoveState.musicList.isNotEmpty;
+              if ((selectedIndex == 1 || selectedIndex == 0) &&
+                  hasMusicLoveData) {
+                return SaveLovePlaylistWidget();
+              }
+              return SizedBox
+                  .shrink(); // Trả về widget rỗng nếu không có dữ liệu
+            }),
             if (selectedIndex == 3 || selectedIndex == 0) ...[
               if (artistList.isNotEmpty)
                 ...artistList.map((artist) => ArtistFollowItem(

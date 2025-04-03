@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tunezmusic/core/configs/theme/app_colors.dart';
-import 'package:tunezmusic/presentation/playlistDetail/pages/playlistDetail.dart';
+import 'package:tunezmusic/presentation/dashboard/widgets/dialogWidget.dart';
 
 class ArtistAndPodcastersColumn extends StatefulWidget {
   final String image;
@@ -22,6 +21,15 @@ class ArtistAndPodcastersColumn extends StatefulWidget {
 
 class _ArtistAndPodcastersColumnState extends State<ArtistAndPodcastersColumn> {
   bool isTapped = false;
+    void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => DialogWidget(
+        name: widget.name,
+        image: widget.image,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +38,7 @@ class _ArtistAndPodcastersColumnState extends State<ArtistAndPodcastersColumn> {
       onTapUp: (_) => setState(() => isTapped = false),
       onTapCancel: () => setState(() => isTapped = false),
       onTap: widget.callback,
+      onLongPress: _showDialog,
       child: Stack(
         alignment: Alignment.center,
         children: [

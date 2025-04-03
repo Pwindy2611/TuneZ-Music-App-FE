@@ -12,6 +12,9 @@ import 'package:tunezmusic/core/configs/bloc/musicManagment/music_state.dart';
 import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/data/services/authManager.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/library/bloc/music_love_list_bloc.dart';
+import 'package:tunezmusic/presentation/library/bloc/music_love_list_event.dart';
+import 'package:tunezmusic/presentation/library/bloc/music_love_list_state.dart';
 import 'package:tunezmusic/presentation/music/widgets/MusicPlayerWidget.dart';
 import 'package:tunezmusic/presentation/dashboard/pages/dashboard_page.dart';
 import 'package:tunezmusic/presentation/history/pages/history.dart';
@@ -23,8 +26,7 @@ import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_event.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_state.dart';
 import 'package:tunezmusic/presentation/main/widgets/item_bottom_nav.dart';
-import 'package:tunezmusic/presentation/premium/bloc/payment_bloc.dart';
-import 'package:tunezmusic/presentation/premium/bloc/payment_event.dart';
+import 'package:tunezmusic/presentation/playlistLove/pages/playList_Love.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_bloc.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_event.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_state.dart';
@@ -49,39 +51,14 @@ class _MainPageState extends State<MainPage> {
     const LibraryWidget(),
     const PremiumWidget(),
     const HistoryPage(),
+    const PlayListLovePage(),
   ];
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
-    //  _listenForDeepLinks();
   }
-
-void _listenForDeepLinks() {
-  final previousHandler = PlatformDispatcher.instance.onPlatformMessage;
-
-  PlatformDispatcher.instance.onPlatformMessage =
-      (String name, ByteData? data, PlatformMessageResponseCallback? callback) {
-    if (name == "flutter/navigation" && data != null) {
-      final String url = String.fromCharCodes(data.buffer.asUint8List());
-      debugPrint("Deep link received: $url");
-
-      // Xử lý điều hướng nếu cần
-      _handleDeepLink(url);
-
-      return;
-    }
-
-    // Gọi lại handler cũ để không làm hỏng hệ thống
-    previousHandler?.call(name, data, callback);
-  };
-}
-
-void _handleDeepLink(String url) {
-  // Thực hiện điều hướng hoặc xử lý deep link
-  debugPrint("Navigating to: $url");
-}
 
 Future<void> _fetchUserData() async {
   final prefs = await SharedPreferences.getInstance();
@@ -94,6 +71,7 @@ Future<void> _fetchUserData() async {
     final artistFollowBloc = context.read<ArtistFollowBloc>();
     final musicBloc = context.read<MusicBloc>();
     final paymentBloc = context.read<SubscriptionsBloc>();
+    final musicLoveList = context.read<MusicLoveListBloc>();
 
     bool shouldWait = false;
 
@@ -114,11 +92,15 @@ Future<void> _fetchUserData() async {
       paymentBloc.add(FetchSubscriptions());
       shouldWait = true;
     }
+    if (musicLoveList.state is MusicLoveListInitial) {
+      musicLoveList.add(FetchMusicLoveListEvent());
+      shouldWait = true;
+    }
 
     // Chỉ chờ nếu ít nhất một Bloc cần fetch dữ liệu
     if (shouldWait) {
       await _waitForBlocsToComplete(
-          [userPlaylistBloc, artistFollowBloc, musicBloc, paymentBloc]);
+          [userPlaylistBloc, artistFollowBloc, musicBloc, paymentBloc, musicLoveList]);
     }
   }
 

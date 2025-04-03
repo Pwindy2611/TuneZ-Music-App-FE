@@ -173,8 +173,8 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
                                     return IconButton(
                                       icon: Icon(
                                         Icons.check_circle_rounded,
-                                        size: 30,
-                                        color: const Color.fromARGB(255, 79, 170, 82),
+                                        size: 28,
+                                        color:Colors.greenAccent,
                                       ),
                                       onPressed: () {
                                       },

@@ -11,19 +11,22 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_bloc.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_event.dart';
 import 'music_event.dart';
 import 'music_state.dart';
 
 class MusicBloc extends Bloc<MusicEvent, MusicState> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final ApiService apiService;
+  final MusicLoveBloc musicLoveBloc;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerStateSubscription;
   StreamSubscription? _playbackStateSubscription;
   List<dynamic> playlist = [];
   PlayerState? _previousState;
   bool _isNextCalled = false;
-  MusicBloc(this.apiService) : super(MusicInitial()) {
+  MusicBloc(this.apiService, this.musicLoveBloc) : super(MusicInitial()) {
     on<LoadUserMusicState>(_onLoadUserMusicState);
     on<PlayStreamMusic>(_onPlayMusicOnFirst);
     on<PauseMusic>(_onPauseMusic);
@@ -217,6 +220,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       await Future.delayed(const Duration(milliseconds: 200));
       duration = _audioPlayer.duration;
     }
+    musicLoveBloc.add(CheckMusicLoveEvent(currentMusicId));
     emit(MusicLoaded(
       name: nameTracks,
       artist: artistTracks,
@@ -248,6 +252,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         final imgTracks = data['imgPath'];
         final nameTracks = data['name'];
         final artistTracks = data['artist'];
+        musicLoveBloc.add(CheckMusicLoveEvent(event.musicId));
         emit(MusicLoaded(
           name: nameTracks,
           artist: artistTracks,

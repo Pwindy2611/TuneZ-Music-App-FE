@@ -1,14 +1,11 @@
 // ignore_for_file: file_names, camel_case_types, non_constant_identifier_names
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:marquee/marquee.dart';
 import 'package:tunezmusic/common/widgets/loading/loading.dart';
 import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
-import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/dashboard/widgets/artistAndPodcastersColumn.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_bloc.dart';
 import 'package:tunezmusic/presentation/dashboard/bloc/user_playlist_state.dart';
-import 'package:tunezmusic/presentation/playlistDetail/pages/playlistDetail.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

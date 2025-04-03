@@ -19,7 +19,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   // List các widget trang
   final List<Widget> _pages = [
     const HomeScreen(), 
-    const Page2(),
+    const HomeScreen(),
     const Page3(),
   ];
 
@@ -54,29 +54,19 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 }
-class Page2 extends StatelessWidget {
-  const Page2({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Trang 2",
-        style: TextStyle(color: Colors.white),
-      ),
-    );
-  }
-}
 
 class Page3 extends StatelessWidget {
   const Page3({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Trang 3",
-        style: TextStyle(color: Colors.white),
+    return  Scaffold(
+      backgroundColor: AppColors.darkBackground,
+      body: Center(
+        child: Text(
+          'Page 3',
+          style: TextStyle(color: Colors.white, fontSize: 24),
+        ),
       ),
     );
   }

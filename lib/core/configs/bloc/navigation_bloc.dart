@@ -24,6 +24,8 @@ class OpenArtistDetailEvent extends NavigationEvent {
 
 class OpenHistoryEvent extends NavigationEvent {}
 
+class OpenLovePLaylistEvent extends NavigationEvent {}
+
 // Trạng thái điều hướng
 class NavigationState {
   final int selectedIndex;
@@ -51,7 +53,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
 
     on<OpenPlaylistDetailEvent>((event, emit) {
       emit(NavigationState(
-        selectedIndex: 5,
+        selectedIndex: 6,
         playlistDetail: PlayListDetail(playlist: event.playlist),
         artistDetail: state.artistDetail,
       ));
@@ -77,13 +79,19 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
 
     on<OpenArtistDetailEvent>((event, emit) {
       emit(NavigationState(
-        selectedIndex: 6,
+        selectedIndex: 7,
         playlistDetail: state.playlistDetail,
         artistDetail: ArtistPlayListDetail(
           imgURL: event.imgURL,
           nameArtist: event.nameArtist,
         ),
       ));
+    });
+
+  on<OpenLovePLaylistEvent>((event, emit) {
+      emit(NavigationState(
+        selectedIndex: 5,
+      )); 
     });
   }
 }

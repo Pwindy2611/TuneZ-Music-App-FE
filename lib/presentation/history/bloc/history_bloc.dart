@@ -27,6 +27,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         if (kDebugMode) {
           debugPrint("Processed Playlists: $playlists");
         }
+        print("playlistHistory: $playlists");
 
         emit(HistoryLoaded(playlists));
       }else {

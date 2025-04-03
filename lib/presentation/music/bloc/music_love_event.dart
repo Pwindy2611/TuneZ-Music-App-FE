@@ -15,3 +15,12 @@ class SaveLoveMusicEvent extends MusicLoveEvent {
   @override
   List<Object?> get props => [musicId];
 }
+
+class CheckMusicLoveEvent extends MusicLoveEvent {
+  final String musicId;
+
+  const CheckMusicLoveEvent(this.musicId);
+
+  @override
+  List<Object?> get props => [musicId];
+}

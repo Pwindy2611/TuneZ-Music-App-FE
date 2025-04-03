@@ -97,7 +97,7 @@ class _HistoryItemWidgetState extends State<HistoryItemWidget> {
                           ),
                            SizedBox(width: 4),
                           Text(
-                            widget.tracks['genres'],
+                            widget.tracks['genres'][0]['name'],
                             style: const TextStyle(color: Colors.grey),
                           ),
                             ]

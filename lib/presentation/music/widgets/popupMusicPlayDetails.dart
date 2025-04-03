@@ -6,6 +6,9 @@ import 'package:tunezmusic/core/configs/bloc/musicManagment/music_bloc.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_event.dart';
 import 'package:tunezmusic/core/configs/bloc/musicManagment/music_state.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_bloc.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_event.dart';
+import 'package:tunezmusic/presentation/music/bloc/music_love_state.dart';
 
 class PopupMusicPlayDetails extends StatefulWidget {
   final MusicLoaded state;
@@ -28,6 +31,7 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
   late MusicLoaded _currentState; // Make state reactive
 
   @override
+
   void initState() {
     super.initState();
     _currentState = widget.state; // Initialize with the passed state
@@ -95,7 +99,8 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                                   fontSize: 10),
                             ),
                             Text(
-                              _currentState.artist ?? "", // Use the reactive state
+                              _currentState.artist ??
+                                  "", // Use the reactive state
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -135,14 +140,16 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _currentState.name ?? "", // Use the reactive state
+                              _currentState.name ??
+                                  "", // Use the reactive state
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18),
                             ),
                             Text(
-                              _currentState.artist ?? "", // Use the reactive state
+                              _currentState.artist ??
+                                  "", // Use the reactive state
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.normal,
@@ -150,13 +157,29 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                             )
                           ],
                         ),
-                        IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.add_circle_outline_sharp,
-                              size: 32,
-                              color: Colors.white,
-                            )),
+                        BlocBuilder<MusicLoveBloc, MusicLoveState>(
+                          builder: (context, state) {
+                            if (state is MusicLoveSuccess) {
+                              return IconButton(
+                                icon: Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 30,
+                                  color: const Color.fromARGB(255, 79, 170, 82),
+                                ),
+                                onPressed: () {},
+                              );
+                            }
+                            return IconButton(
+                                onPressed: () {
+                                    context.read<MusicLoveBloc>().add(SaveLoveMusicEvent(widget.state.currentMusicId));
+                                },
+                                icon: Icon(
+                                  Icons.add_circle_outline_sharp,
+                                  size: 32,
+                                  color: Colors.white,
+                                ));
+                          },
+                        )
                       ],
                     ),
                     SizedBox(
@@ -172,7 +195,8 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                       ),
                       child: Slider(
                         value: _sliderValue,
-                        max: _currentState.duration.inSeconds.toDouble(), // Use the reactive state
+                        max: _currentState.duration.inSeconds
+                            .toDouble(), // Use the reactive state
                         onChanged: (value) {
                           setState(() {
                             _sliderValue = value;
@@ -227,9 +251,9 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                       context
-                                          .read<MusicBloc>()
-                                          .add(RanDomTrackEvent());
+                                    context
+                                        .read<MusicBloc>()
+                                        .add(RanDomTrackEvent());
                                   },
                                   icon: Icon(
                                     Icons.skip_previous_rounded,
