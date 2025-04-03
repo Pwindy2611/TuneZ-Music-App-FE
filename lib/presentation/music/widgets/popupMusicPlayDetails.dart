@@ -167,9 +167,13 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                                 icon: Icon(
                                   Icons.check_circle_rounded,
                                   size: 30,
-                                  color: const Color.fromARGB(255, 79, 170, 82),
+                                  color: const Color.fromARGB(255, 95, 255, 178),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  context.read<MusicLoveBloc>().add(
+                                      UnSaveLoveMusicEvent(
+                                          widget.state.currentMusicId));
+                                },
                               );
                             }
                             return IconButton(

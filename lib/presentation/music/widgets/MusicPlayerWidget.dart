@@ -181,6 +181,7 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
                                         color:const Color.fromARGB(255, 95, 255, 178)
                                       ),
                                       onPressed: () {
+                                        context.read<MusicLoveBloc>().add(UnSaveLoveMusicEvent(state.currentMusicId));
                                       },
                                     );
                                   }

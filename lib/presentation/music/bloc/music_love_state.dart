@@ -12,7 +12,7 @@ class MusicLoveInitial extends MusicLoveState {}
 class MusicLoveLoading extends MusicLoveState {}
 
 class MusicLoveSuccess extends MusicLoveState {}
-
+class MusicUnLoveSuccess extends MusicLoveState {}
 class MusicLoveFailure extends MusicLoveState {
   final String error;
 

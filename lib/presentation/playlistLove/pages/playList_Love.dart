@@ -33,9 +33,7 @@ class _PlayListLovePageState extends State<PlayListLovePage> {
           Scaffold(
             body: BlocBuilder<MusicLoveListBloc, MusicLoveListState>(
               builder: (context, state) {
-                if (state is MusicLoveListLoading) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (state is MusicLoveListLoaded) {
+                if (state is MusicLoveListLoaded) {
                   return Container(
                       padding: const EdgeInsets.only(top: 80),
                       decoration: BoxDecoration(

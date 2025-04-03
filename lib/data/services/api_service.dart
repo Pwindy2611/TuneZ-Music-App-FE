@@ -69,17 +69,18 @@ class ApiService {
   }
 
   Future<ResponseBody?> getStream(String endpoint) async {
-  await ensureInitialized();
-  try {
-    final response = await _dio.get<ResponseBody>(
-      endpoint,
-      options: Options(responseType: ResponseType.stream), // ⚡ Nhận dữ liệu dạng stream
-    );
-    return response.data;
-  } catch (e) {
-    throw Exception('Error streaming music: $e');
+    await ensureInitialized();
+    try {
+      final response = await _dio.get<ResponseBody>(
+        endpoint,
+        options: Options(
+            responseType: ResponseType.stream), // ⚡ Nhận dữ liệu dạng stream
+      );
+      return response.data;
+    } catch (e) {
+      throw Exception('Error streaming music: $e');
+    }
   }
-}
 
   /// Phương thức POST
   Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
@@ -98,9 +99,9 @@ class ApiService {
     await ensureInitialized();
     try {
       final response = await _dio.post(endpoint, data: jsonEncode(body));
-        final uri = Uri.parse(_dio.options.baseUrl);
-        final cookies = await _cookieJar.loadForRequest(uri);
-        await _cookieJar.saveFromResponse(uri, cookies);
+      final uri = Uri.parse(_dio.options.baseUrl);
+      final cookies = await _cookieJar.loadForRequest(uri);
+      await _cookieJar.saveFromResponse(uri, cookies);
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Error POST: $e');
@@ -128,5 +129,15 @@ class ApiService {
   Future<void> clearCookies() async {
     await ensureInitialized();
     await _cookieJar.deleteAll(); // Xóa tất cả cookie
+  }
+
+  Future<dynamic> delete(String endpoint) async {
+     await ensureInitialized();
+    try {
+      final response = await _dio.delete(endpoint);
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Error DELETE: $e');
+    }
   }
 }

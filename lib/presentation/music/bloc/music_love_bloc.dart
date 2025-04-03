@@ -12,6 +12,7 @@ class MusicLoveBloc extends Bloc<MusicLoveEvent, MusicLoveState> {
   MusicLoveBloc(this.apiService, this.musicLoveListBloc) : super(MusicLoveInitial()) {
     on<SaveLoveMusicEvent>(_onSaveLoveMusic);
     on<CheckMusicLoveEvent>(_onCheckMusicLove);
+    on<UnSaveLoveMusicEvent>(_onUnSaveLoveMusic);
   }
 
   Future<void> _onSaveLoveMusic(
@@ -55,6 +56,27 @@ class MusicLoveBloc extends Bloc<MusicLoveEvent, MusicLoveState> {
         emit(MusicLoveSuccess()); // Nếu bài hát là yêu thích
       } else {
         emit(MusicLoveFailure("This music is not in the love list.")); // Nếu không
+      }
+    } catch (e) {
+      emit(MusicLoveFailure("Error: $e"));
+    }
+  }
+
+  Future<void> _onUnSaveLoveMusic(
+      UnSaveLoveMusicEvent event, Emitter<MusicLoveState> emit) async {
+          emit(MusicLoveLoading());
+        print("UnSave love music event: ${event.musicId}");
+    try {
+      final response = await apiService.delete(
+        'love/unLoveMusic/${event.musicId}',
+      );
+      print("Response: ${response}");
+
+      if (response["success"] == true) {
+      musicLoveListBloc.add(FetchMusicLoveListEvent());
+        emit(MusicUnLoveSuccess());
+      } else {
+        emit(MusicLoveFailure("Failed to save love music: ${response.body}"));
       }
     } catch (e) {
       emit(MusicLoveFailure("Error: $e"));

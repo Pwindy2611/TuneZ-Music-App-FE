@@ -24,3 +24,12 @@ class CheckMusicLoveEvent extends MusicLoveEvent {
   @override
   List<Object?> get props => [musicId];
 }
+
+class UnSaveLoveMusicEvent extends MusicLoveEvent {
+  final String musicId;
+
+  const UnSaveLoveMusicEvent(this.musicId);
+
+  @override
+  List<Object?> get props => [musicId];
+}
