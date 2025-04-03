@@ -44,19 +44,29 @@ class _PlayListLovePageState extends State<PlayListLovePage> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.blue,
-                            const Color.fromARGB(255, 39, 39, 39),
-                            Colors.black
+                            Colors.black,
                           ],
                         ),
                       ),
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            SizedBox(
-                              height: 50,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                              child: Align(
+                                alignment: Alignment.centerLeft, // Align text to the left
+                                child: Text(
+                                  "Bài hát đã thích",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              padding: EdgeInsets.symmetric(horizontal: 10,vertical: 20),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment:
@@ -112,26 +122,22 @@ class _PlayListLovePageState extends State<PlayListLovePage> {
                                 ],
                               ),
                             ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height -
-                                  130, // Adjust height
-                              child: ListView.builder(
-                                itemCount: state.musicList.length + 2,
-                                itemBuilder: (context, index) {
-                                  if (index >= state.musicList.length) {
-                                    return const SizedBox(height: 100);
-                                  }
+                            Column(
+                              children: List.generate(
+                                state.musicList.length,
+                                (index) {
                                   final track = state.musicList[index];
                                   return Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 5),
-                                      child: HistoryItemWidget(
-                                        tracks: track,
-                                        prColor: Colors.black,
-                                      ));
+                                    padding: EdgeInsets.symmetric(vertical: 5),
+                                    child: HistoryItemWidget(
+                                      tracks: track,
+                                      prColor: Colors.black,
+                                    ),
+                                  );
                                 },
                               ),
                             ),
+                            const SizedBox(height: 200),
                           ],
                         ),
                       ));
@@ -151,8 +157,8 @@ class _PlayListLovePageState extends State<PlayListLovePage> {
             ),
           ),
           PlayListAppBar(
-            title: "Bài hát đã thích",
-            blurAmount: 50,
+            title: "",
+            blurAmount: 0,
             onBackPressed: () {
               context.read<NavigationBloc>().add(BackToLiEvent());
             },

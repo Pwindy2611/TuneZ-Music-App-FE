@@ -36,6 +36,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     on<UpdatePlaylist>(_onUpdatePlaylist);
     on<RanDomTrackEvent>(_randomTrack);
     on<LogoutEvent>(_onLogout);
+    on<ResetStateEvent>(_onResetState);
     _setupEventListeners();
   }
 
@@ -155,6 +156,13 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     }
   }
 
+  String _processLyrics(String rawLyrics) {
+  // Tách lời bài hát bằng '\n' và nối lại với các dòng xuống dòng cho giao diện hiển thị
+  return rawLyrics
+      .split('\\n') // Tách chuỗi bằng ký tự '\n'
+      .join('\n\n');  // Nối lại bằng ký tự xuống dòng
+}
+
   Future<void> _onLoadUserMusicState(
       LoadUserMusicState event, Emitter<MusicState> emit) async {
     emit(MusicLoading());
@@ -193,6 +201,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     final imgTracks = data['imgPath'];
     final nameTracks = data['name'];
     final artistTracks = data['artist'];
+    final lyrics = _processLyrics(data['lyrics']);
 
     // Dùng BytesBuilder thay vì fold() để tối ưu hiệu suất
     final bytesBuilder = BytesBuilder();
@@ -229,6 +238,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       duration: duration,
       position: position,
       musicUrl: imgTracks,
+      lyrics: lyrics,
     ));
     _audioPlayer.seek(position);
     add(UpdatePosition(position: position));
@@ -252,6 +262,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         final imgTracks = data['imgPath'];
         final nameTracks = data['name'];
         final artistTracks = data['artist'];
+        final lyrics = _processLyrics(data['lyrics']);
         musicLoveBloc.add(CheckMusicLoveEvent(event.musicId));
         emit(MusicLoaded(
           name: nameTracks,
@@ -261,6 +272,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
           duration: _audioPlayer.duration ?? Duration.zero, // Tránh null
           position: Duration.zero,
           musicUrl: imgTracks,
+          lyrics: lyrics,
         ));
         final bytesBuilder = BytesBuilder();
         await for (final chunk in response!.stream) {
@@ -404,6 +416,18 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       emit(MusicInitial()); // Quay về trạng thái ban đầu
     } catch (e) {
       print("Lỗi khi logout: $e");
+    }
+  }
+
+  Future<void> _onResetState(
+      ResetStateEvent event, Emitter<MusicState> emit) async {
+    try {
+      await _audioPlayer.stop(); // Stop the audio player
+      playlist.clear(); // Clear the playlist
+      emit(MusicInitial()); // Reset the state to MusicInitial
+      print("State has been reset to MusicInitial.");
+    } catch (e) {
+      print("Error while resetting state: $e");
     }
   }
 }

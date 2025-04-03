@@ -9,6 +9,7 @@ class ArtistFollowBloc extends Bloc<ArtistFollowEvent, ArtistFollowState> {
 
   ArtistFollowBloc(this.apiService) : super(ArtistFollowInitial()) {
     on<FetchArtistFollowEvent>(_fetchArtistFollow);
+    on<ResetArtistFollowStateEvent>(_resetState);
   }
 
   Future<void> _fetchArtistFollow(
@@ -39,5 +40,10 @@ class ArtistFollowBloc extends Bloc<ArtistFollowEvent, ArtistFollowState> {
       }
       emit(ArtistFollowError(e.toString()));
     }
+  }
+
+  void _resetState(
+      ResetArtistFollowStateEvent event, Emitter<ArtistFollowState> emit) {
+    emit(ArtistFollowInitial());
   }
 }

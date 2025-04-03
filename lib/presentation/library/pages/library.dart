@@ -139,7 +139,7 @@ class _LibraryWidgetState extends State<LibraryWidget> {
             ],
             if (selectedIndex == 3 || selectedIndex == 0)
               const AddArtistWidget(),
-            const SizedBox(height: 100),
+            const SizedBox(height: 200),
           ],
         );
       },
@@ -147,47 +147,44 @@ class _LibraryWidgetState extends State<LibraryWidget> {
   }
 
   Widget _buildGridView(List<dynamic> artistList) {
-    return ValueListenableBuilder<int>(
-      valueListenable: _selectedIndexNotifier,
-      builder: (context, selectedIndex, child) {
-        return GridView.count(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.7,
-          children: [
-              BlocBuilder<MusicLoveListBloc, MusicLoveListState>(
-                builder: (context, musicLoveState) {
-              final hasMusicLoveData = musicLoveState is MusicLoveListLoaded &&
-                  musicLoveState.musicList.isNotEmpty;
+    return BlocBuilder<MusicLoveListBloc, MusicLoveListState>(
+        builder: (context, musicLoveState) {
+      final hasMusicLoveData = musicLoveState is MusicLoveListLoaded &&
+          musicLoveState.musicList.isNotEmpty;
+      return ValueListenableBuilder<int>(
+        valueListenable: _selectedIndexNotifier,
+        builder: (context, selectedIndex, child) {
+          return GridView.count(
+            crossAxisCount: 3,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.7,
+            children: [
               if ((selectedIndex == 1 || selectedIndex == 0) &&
-                  hasMusicLoveData) {
-                return SaveLovePlaylistWidget();
-              }
-              return SizedBox
-                  .shrink(); // Trả về widget rỗng nếu không có dữ liệu
-            }),
-            if (selectedIndex == 3 || selectedIndex == 0) ...[
-              if (artistList.isNotEmpty)
-                ...artistList.map((artist) => ArtistFollowItem(
-                      callback: () {
-                        context.read<NavigationBloc>().add(
-                            OpenArtistDetailEvent(
-                                artist['img'], artist['name']));
-                      },
-                      name: artist['name'] ?? 'Unknown Artist',
-                      image: artist['img'] ?? '',
-                    )),
+                  hasMusicLoveData)
+                SaveLovePlaylistWidget(),
+              if (selectedIndex == 3 || selectedIndex == 0) ...[
+                if (artistList.isNotEmpty)
+                  ...artistList.map((artist) => ArtistFollowItem(
+                        callback: () {
+                          context.read<NavigationBloc>().add(
+                              OpenArtistDetailEvent(
+                                  artist['img'], artist['name']));
+                        },
+                        name: artist['name'] ?? 'Unknown Artist',
+                        image: artist['img'] ?? '',
+                      )),
+              ],
+              if (selectedIndex == 1 || selectedIndex == 0)
+                const SavePlaylistWidget(),
+              if (selectedIndex == 2 || selectedIndex == 0)
+                const AddPodcastWidget(),
+              if (selectedIndex == 3 || selectedIndex == 0)
+                const AddArtistWidget(),
             ],
-            if (selectedIndex == 1 || selectedIndex == 0)
-              const SavePlaylistWidget(),
-            if (selectedIndex == 2 || selectedIndex == 0)
-              const AddPodcastWidget(),
-            if (selectedIndex == 3 || selectedIndex == 0)
-              const AddArtistWidget(),
-          ],
-        );
-      },
-    );
+          );
+        },
+      );
+    });
   }
 }

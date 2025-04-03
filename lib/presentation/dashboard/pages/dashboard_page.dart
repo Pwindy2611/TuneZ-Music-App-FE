@@ -19,8 +19,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   // List các widget trang
   final List<Widget> _pages = [
     const HomeScreen(), 
-    const HomeScreen(),
-    const Page3(),
   ];
 
   @override
@@ -55,19 +53,19 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   }
 }
 
-class Page3 extends StatelessWidget {
-  const Page3({super.key});
+// class Page3 extends StatelessWidget {
+//   const Page3({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return  Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      body: Center(
-        child: Text(
-          'Page 3',
-          style: TextStyle(color: Colors.white, fontSize: 24),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return  Scaffold(
+//       backgroundColor: AppColors.darkBackground,
+//       body: Center(
+//         child: Container(
+//           color: AppColors.darkGrey,
+//           child:
+//         ),
+//       )
+//     );
+//   }
+// }

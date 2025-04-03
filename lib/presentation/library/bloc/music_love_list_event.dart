@@ -8,3 +8,5 @@ abstract class MusicLoveListEvent extends Equatable {
 }
 
 class FetchMusicLoveListEvent extends MusicLoveListEvent {}
+
+class ResetMusicLoveListStateEvent extends MusicLoveListEvent {}

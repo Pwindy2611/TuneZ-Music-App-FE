@@ -12,6 +12,7 @@ class HomePlaylistBloc extends Bloc<HomePlaylistEvent, HomePlaylistState> {
 
   HomePlaylistBloc(this.apiService) : super(HomePlaylistInitial()) {
     on<FetchHomePlaylistEvent>(_fetchHomePlaylist);
+    on<ResetHomePlaylistStateEvent>(_resetHomePlaylistState);
   }
 
   Future<void> _fetchHomePlaylist(
@@ -26,8 +27,8 @@ class HomePlaylistBloc extends Bloc<HomePlaylistEvent, HomePlaylistState> {
       List<Map<String, dynamic>> playlists = PlaylistHelper.processPlaylistData(response);
 
       if (kDebugMode) {
-  debugPrint("Processed Playlists: $playlists");
-}
+        debugPrint("Processed Playlists: $playlists");
+      }
 
       emit(HomePlaylistLoaded(playlists));
     } catch (e) {
@@ -36,5 +37,10 @@ class HomePlaylistBloc extends Bloc<HomePlaylistEvent, HomePlaylistState> {
       }
       emit(HomePlaylistError(e.toString()));
     }
+  }
+
+  void _resetHomePlaylistState(
+      ResetHomePlaylistStateEvent event, Emitter<HomePlaylistState> emit) {
+    emit(HomePlaylistInitial());
   }
 }

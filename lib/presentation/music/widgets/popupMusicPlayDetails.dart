@@ -9,10 +9,12 @@ import 'package:tunezmusic/core/configs/theme/app_colors.dart';
 import 'package:tunezmusic/presentation/music/bloc/music_love_bloc.dart';
 import 'package:tunezmusic/presentation/music/bloc/music_love_event.dart';
 import 'package:tunezmusic/presentation/music/bloc/music_love_state.dart';
+import 'package:tunezmusic/presentation/music/widgets/popupLyricsWidget.dart';
 
 class PopupMusicPlayDetails extends StatefulWidget {
   final MusicLoaded state;
   final Color _dominantColor;
+  final Color _backgroundLyrics;
   final String? imgURL;
 
   const PopupMusicPlayDetails({
@@ -20,7 +22,9 @@ class PopupMusicPlayDetails extends StatefulWidget {
     required this.state,
     required Color dominantColor,
     required this.imgURL,
-  }) : _dominantColor = dominantColor;
+    required Color backgroundLyrics,
+  })  : _dominantColor = dominantColor,
+        _backgroundLyrics = backgroundLyrics;
 
   @override
   State<PopupMusicPlayDetails> createState() => _PopupMusicPlayDetailsState();
@@ -31,7 +35,6 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
   late MusicLoaded _currentState; // Make state reactive
 
   @override
-
   void initState() {
     super.initState();
     _currentState = widget.state; // Initialize with the passed state
@@ -171,7 +174,9 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                             }
                             return IconButton(
                                 onPressed: () {
-                                    context.read<MusicLoveBloc>().add(SaveLoveMusicEvent(widget.state.currentMusicId));
+                                  context.read<MusicLoveBloc>().add(
+                                      SaveLoveMusicEvent(
+                                          widget.state.currentMusicId));
                                 },
                                 icon: Icon(
                                   Icons.add_circle_outline_sharp,
@@ -309,7 +314,70 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
                               color: Colors.white,
                             ))
                       ],
-                    )
+                    ),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: widget._backgroundLyrics,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Bản xem trước bài hát",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Box lyrics giới hạn chiều cao
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: 250, // Giới hạn chiều cao       
+                            ),
+                            child: SingleChildScrollView(
+                              child: Text(
+                                widget.state.lyrics ?? "",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Nút "Xem thêm"
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                _showLyricsPopup(context); // Mở popup lyrics
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                backgroundColor: Colors.white,
+                                foregroundColor: widget._backgroundLyrics,
+                              ),
+                              child: const Text("Hiện lời bài hát",style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                      const SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -317,6 +385,20 @@ class _PopupMusicPlayDetailsState extends State<PopupMusicPlayDetails> {
           );
         },
       ),
+    );
+  }
+
+  void _showLyricsPopup(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: widget._backgroundLyrics,
+      builder: (context) {
+        return LyricsPopup(
+          lyrics: widget.state.lyrics,
+          backgroundColor: widget._backgroundLyrics,
+        );
+      },
     );
   }
 }

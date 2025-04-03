@@ -9,6 +9,7 @@ class MusicLoveListBloc extends Bloc<MusicLoveListEvent, MusicLoveListState> {
 
   MusicLoveListBloc(this.apiService) : super(MusicLoveListInitial()) {
     on<FetchMusicLoveListEvent>(_onFetchMusicLoveList);
+    on<ResetMusicLoveListStateEvent>(_onResetMusicLoveListState);
   }
 
   Future<void> _onFetchMusicLoveList(
@@ -37,5 +38,10 @@ class MusicLoveListBloc extends Bloc<MusicLoveListEvent, MusicLoveListState> {
     } catch (e) {
       emit(MusicLoveListError("Error: $e"));
     }
+  }
+
+  Future<void> _onResetMusicLoveListState(
+      ResetMusicLoveListStateEvent event, Emitter<MusicLoveListState> emit) async {
+    emit(MusicLoveListInitial());
   }
 }

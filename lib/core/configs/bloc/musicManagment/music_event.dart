@@ -52,3 +52,5 @@ class UpdatePosition extends MusicEvent {
 }
 
 class RanDomTrackEvent extends MusicEvent {}
+
+class ResetStateEvent extends MusicEvent {}

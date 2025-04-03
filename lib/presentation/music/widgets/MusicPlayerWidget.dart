@@ -24,6 +24,7 @@ class MusicPlayerWidget extends StatefulWidget {
 class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
   late StreamSubscription _lifecycleSubscription;
   Color _dominantColor = AppColors.darkGrey;
+  Color _defaultColor = AppColors.darkGrey;
   String? _currentMusicUrl = "https://th.bing.com/th/id/OIP.bLCU8HwL546JIVk9vLV3NAHaHa?rs=1&pid=ImgDetMain";
 
   @override
@@ -54,6 +55,9 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
         await PaletteGenerator.fromImageProvider(NetworkImage(musicUrl));
 
     final Color newColor = paletteGenerator.dominantColor?.color ?? AppColors.grey;
+    setState(() {
+        _defaultColor  = newColor;
+      });
 
     // Calculate brightness (0.0 = dark, 1.0 = light)
     final double brightness = (newColor.red * 0.299 + newColor.green * 0.587 + newColor.blue * 0.114) / 255;
@@ -80,7 +84,7 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
     isScrollControlled: true, // Ensure the BottomSheet can expand fully
     backgroundColor: Colors.transparent,
     builder: (context) {
-      return PopupMusicPlayDetails(state: state, dominantColor: _dominantColor,imgURL:_currentMusicUrl ,);
+      return PopupMusicPlayDetails(state: state, dominantColor: _dominantColor,imgURL:_currentMusicUrl, backgroundLyrics:_defaultColor,);
     },
   );
 }
@@ -174,7 +178,7 @@ class _MusicPlayerWidgetState extends State<MusicPlayerWidget> {
                                       icon: Icon(
                                         Icons.check_circle_rounded,
                                         size: 28,
-                                        color:Colors.greenAccent,
+                                        color:const Color.fromARGB(255, 95, 255, 178)
                                       ),
                                       onPressed: () {
                                       },

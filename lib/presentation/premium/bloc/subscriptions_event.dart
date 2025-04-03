@@ -6,3 +6,6 @@ abstract class SubscriptionsEvent extends Equatable {
 }
 
 class FetchSubscriptions extends SubscriptionsEvent {}
+
+// Add a new event to reset the state
+class ResetSubscriptionsState extends SubscriptionsEvent {}

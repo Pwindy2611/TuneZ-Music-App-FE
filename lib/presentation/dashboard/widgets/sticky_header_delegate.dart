@@ -60,20 +60,20 @@ class StickyDashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                     return _buildCategoryButton(0, 'Tất cả', selectedIndex == 0);
                   },
                 ),
-                const SizedBox(width: 10),
-                ValueListenableBuilder<int>(
-                  valueListenable: _selectedIndexNotifier,
-                  builder: (context, selectedIndex, child) {
-                    return _buildCategoryButton(1, 'Nhạc', selectedIndex == 1);
-                  },
-                ),
-                const SizedBox(width: 10),
-                ValueListenableBuilder<int>(
-                  valueListenable: _selectedIndexNotifier,
-                  builder: (context, selectedIndex, child) {
-                    return _buildCategoryButton(2, 'Podcasts', selectedIndex == 2);
-                  },
-                ),
+                // const SizedBox(width: 10),
+                // ValueListenableBuilder<int>(
+                //   valueListenable: _selectedIndexNotifier,
+                //   builder: (context, selectedIndex, child) {
+                //     return _buildCategoryButton(1, 'Nhạc', selectedIndex == 1);
+                //   },
+                // ),
+                // const SizedBox(width: 10),
+                // ValueListenableBuilder<int>(
+                //   valueListenable: _selectedIndexNotifier,
+                //   builder: (context, selectedIndex, child) {
+                //     return _buildCategoryButton(2, 'Podcasts', selectedIndex == 2);
+                //   },
+                // ),
               ],
             ),
           ],

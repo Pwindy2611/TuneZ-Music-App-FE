@@ -18,6 +18,7 @@ class MusicLoaded extends MusicState {
   final String? musicUrl;
   final String? name;
   final String? artist;
+  final String? lyrics;
 
   MusicLoaded(
      {  
@@ -28,6 +29,7 @@ class MusicLoaded extends MusicState {
     required this.duration,
     required this.position,
     this.musicUrl,
+    this.lyrics, 
   });
 
   MusicLoaded copyWith({
@@ -38,6 +40,7 @@ class MusicLoaded extends MusicState {
     String? musicUrl,
     String? name,
     String? artist,
+    String? lyrics,
   }) {
     return MusicLoaded(
       name: name?? this.name,
@@ -47,9 +50,10 @@ class MusicLoaded extends MusicState {
       duration: duration ?? this.duration,
       position: position ?? this.position,
       musicUrl: musicUrl ?? this.musicUrl,
+      lyrics: lyrics ?? this.lyrics,
     );
   }
 
   @override
-  List<Object?> get props => [currentMusicId, isPlaying, duration, position, musicUrl];
+  List<Object?> get props => [currentMusicId, isPlaying, duration, position, musicUrl,];
 }
