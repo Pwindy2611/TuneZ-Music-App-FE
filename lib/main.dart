@@ -24,6 +24,7 @@ import 'package:tunezmusic/presentation/music/bloc/music_love_bloc.dart';
 import 'package:tunezmusic/presentation/premium/bloc/payment_bloc.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_bloc.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
+import 'package:tunezmusic/presentation/search/bloc/search_bloc.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -88,6 +89,7 @@ runApp(
       BlocProvider(create: (context) => PaymentBloc(ApiService())),
       BlocProvider(create: (context) => SubscriptionsBloc(ApiService())),
       BlocProvider(create: (context) => ArtistTracksBloc(ApiService())),
+      BlocProvider(create: (context) => SearchBloc(ApiService())),
     ],
     child: MainApp(),
   ),

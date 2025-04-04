@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/presentation/search/pages/search_page.dart';
 
 class StickySearchBarDelegate extends SliverPersistentHeaderDelegate {
   @override
@@ -12,28 +15,34 @@ class StickySearchBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       color: AppColors.darkBackground,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child:
-      Column(
+      child: Column(
         children: [
-          SizedBox(height: 40,) ,
-          TextField(
-        style: const TextStyle(color: Colors.black),
-        cursorColor: AppColors.primary,
-        decoration: InputDecoration(
-          hintText: "Bạn muốn nghe gì...",
-          hintStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          prefixIcon: const Icon(Icons.search, color: Colors.black),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
+          const SizedBox(height: 40),
+          GestureDetector(
+            onTap: () {
+            context.read<NavigationBloc>().add(
+                                         OpenSearchEvent());
+            },
+            child: TextField(
+              enabled: false,
+              style: const TextStyle(color: Colors.black),
+              cursorColor: AppColors.primary,
+              decoration: InputDecoration(
+                hintText: "Bạn muốn nghe gì...",
+                hintStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                prefixIcon: const Icon(Icons.search, color: Colors.black),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-        ),
+        ],
       ),
-        ]
-      )
     );
   }
 

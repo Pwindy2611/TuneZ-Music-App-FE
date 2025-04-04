@@ -26,6 +26,8 @@ class OpenHistoryEvent extends NavigationEvent {}
 
 class OpenLovePLaylistEvent extends NavigationEvent {}
 
+class OpenSearchEvent extends NavigationEvent {}
+
 // Trạng thái điều hướng
 class NavigationState {
   final int selectedIndex;
@@ -43,6 +45,8 @@ class ClosePlaylistDetailEvent extends NavigationEvent {}
 
 class BackToLiEvent extends NavigationEvent {}
 
+class BackToSearchEvent extends NavigationEvent {}
+
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
   NavigationBloc() : super(NavigationState(selectedIndex: 0)) {
     on<ChangeTabEvent>((event, emit) {
@@ -53,7 +57,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
 
     on<OpenPlaylistDetailEvent>((event, emit) {
       emit(NavigationState(
-        selectedIndex: 6,
+        selectedIndex: 7,
         playlistDetail: PlayListDetail(playlist: event.playlist),
         artistDetail: state.artistDetail,
       ));
@@ -71,6 +75,14 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
       )); 
     });
 
+    on<BackToSearchEvent>((event, emit) {
+      emit(NavigationState(
+        selectedIndex: 1,
+      )); 
+    });
+
+
+
     on<OpenHistoryEvent>((event, emit) {
       emit(NavigationState(
         selectedIndex: 4,
@@ -79,7 +91,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
 
     on<OpenArtistDetailEvent>((event, emit) {
       emit(NavigationState(
-        selectedIndex: 7,
+        selectedIndex: 8,
         playlistDetail: state.playlistDetail,
         artistDetail: ArtistPlayListDetail(
           imgURL: event.imgURL,
@@ -93,5 +105,11 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
         selectedIndex: 5,
       )); 
     });
+
+    on<OpenSearchEvent>((event, emit) {
+    emit(NavigationState(
+      selectedIndex: 6,
+    )); 
+  });
   }
 }

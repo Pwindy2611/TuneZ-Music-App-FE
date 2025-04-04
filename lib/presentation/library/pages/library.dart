@@ -139,7 +139,7 @@ class _LibraryWidgetState extends State<LibraryWidget> {
             ],
             if (selectedIndex == 3 || selectedIndex == 0)
               const AddArtistWidget(),
-            const SizedBox(height: 200),
+            const SizedBox(height: 100),
           ],
         );
       },

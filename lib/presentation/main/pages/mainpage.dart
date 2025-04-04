@@ -32,6 +32,7 @@ import 'package:tunezmusic/presentation/premium/bloc/subscriptions_event.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_state.dart';
 import 'package:tunezmusic/presentation/premium/pages/premium.dart';
 import 'package:tunezmusic/presentation/search/pages/search.dart';
+import 'package:tunezmusic/presentation/search/pages/search_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -52,6 +53,7 @@ class _MainPageState extends State<MainPage> {
     const PremiumWidget(),
     const HistoryPage(),
     const PlayListLovePage(),
+    const SearchPage(),
   ];
 
   @override
