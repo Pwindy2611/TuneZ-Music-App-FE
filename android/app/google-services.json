@@ -1,0 +1,131 @@
+{
+  "project_info": {
+    "project_number": "594252561024",
+    "firebase_url": "https://tunez-ddb5f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tunez-ddb5f",
+    "storage_bucket": "tunez-ddb5f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594252561024:android:e04302c58fbd4d034bc465",
+        "android_client_info": {
+          "package_name": "com.company.tunez"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594252561024-k72meg9rh60r281jrlguvd4b73b8utnm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.company.tunez",
+            "certificate_hash": "790d75a925d97dc89534a169d9955a81493adb23"
+          }
+        },
+        {
+          "client_id": "594252561024-up3ognn7lp7l81ihtt9lttrebseuhd2v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.company.tunez",
+            "certificate_hash": "7e5ff60a2d395a3f17891571618d557146d2f603"
+          }
+        },
+        {
+          "client_id": "594252561024-8tfrnhhhk7cjs3okmftbidaac30hmtbi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArnmIISGjUFlozDHI15paL7wtfKmvWwFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "594252561024-6pgeie663quk7ovet1cp9cjgbdsggq8g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "594252561024-dvknef505dstqd5f78gjru7oejo2qds5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tunezmusic"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594252561024:android:08a8d21e4936bd484bc465",
+        "android_client_info": {
+          "package_name": "com.example.tunezmusic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594252561024-ddmmujafhq75po54l9lu1ao57512298m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tunezmusic",
+            "certificate_hash": "36d18b43a722d7779d9d52629f19e8c477027f2d"
+          }
+        },
+        {
+          "client_id": "594252561024-k34jivoaanf67uj3sngdgeseuoo0n4ur.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tunezmusic",
+            "certificate_hash": "790d75a925d97dc89534a169d9955a81493adb23"
+          }
+        },
+        {
+          "client_id": "594252561024-l5eek9to2qotls6f12dfr8o86vjbov0p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tunezmusic",
+            "certificate_hash": "7b75c7dcebd357218969105bb88abdea40e8b130"
+          }
+        },
+        {
+          "client_id": "594252561024-qq6igh5leo57t8sodnj5745caa3fdlv0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tunezmusic",
+            "certificate_hash": "e5a84a777b4aa2018dd7faf1ad5394e718bd8d84"
+          }
+        },
+        {
+          "client_id": "594252561024-8tfrnhhhk7cjs3okmftbidaac30hmtbi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArnmIISGjUFlozDHI15paL7wtfKmvWwFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "594252561024-6pgeie663quk7ovet1cp9cjgbdsggq8g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "594252561024-dvknef505dstqd5f78gjru7oejo2qds5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tunezmusic"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
