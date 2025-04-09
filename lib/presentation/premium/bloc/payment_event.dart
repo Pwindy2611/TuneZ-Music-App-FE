@@ -20,15 +20,15 @@ class SelectPayment extends PaymentEvent {
   List<Object?> get props => [itemId, amount, paymentMethod];
 }
 
-// Xử lý callback sau khi thanh toán từ Momo
-class HandlePaymentCallback extends PaymentEvent {
-  final Map<String, dynamic> callbackData;
+class CheckPaymentStatus extends PaymentEvent {
+  final String orderId;
 
-  HandlePaymentCallback({required this.callbackData});
+  CheckPaymentStatus({required this.orderId});
 
   @override
-  List<Object?> get props => [callbackData];
+  List<Object?> get props => [orderId];
 }
 
+class PaymentFailed extends PaymentEvent {}
 
 class ResetPaymentStateEvent extends PaymentEvent {}

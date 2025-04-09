@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunezmusic/presentation/artistDetails/pages/artist_playlist_details.dart';
-import 'package:tunezmusic/presentation/history/pages/history.dart';
 import 'package:tunezmusic/presentation/playlistDetail/pages/playlistDetail.dart';
 
 // Sự kiện điều hướng
@@ -23,6 +22,8 @@ class OpenArtistDetailEvent extends NavigationEvent {
 }
 
 class OpenHistoryEvent extends NavigationEvent {}
+
+class OpenUserMusicEvent extends NavigationEvent {}
 
 class OpenLovePLaylistEvent extends NavigationEvent {}
 
@@ -59,7 +60,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
 
     on<OpenPlaylistDetailEvent>((event, emit) {
       emit(NavigationState(
-        selectedIndex: 7,
+        selectedIndex: 8,
         playlistDetail: PlayListDetail(playlist: event.playlist),
         artistDetail: state.artistDetail,
       ));
@@ -89,9 +90,16 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
       )); 
     });
 
+    on<OpenUserMusicEvent>((event, emit) {
+      emit(NavigationState(
+        selectedIndex: 7,
+      )); 
+    });
+
+
     on<OpenArtistDetailEvent>((event, emit) {
       emit(NavigationState(
-        selectedIndex: 8,
+        selectedIndex: 9,
         playlistDetail: state.playlistDetail,
         artistDetail: ArtistPlayListDetail(
           imgURL: event.imgURL,

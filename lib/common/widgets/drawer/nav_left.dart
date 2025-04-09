@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/core/configs/assets/app_images.dart';
-import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart' show NavigationBloc, OpenHistoryEvent;
+import 'package:tunezmusic/core/configs/bloc/navigation_bloc.dart';
 import 'package:tunezmusic/presentation/history/bloc/history_bloc.dart';
 import 'package:tunezmusic/presentation/history/bloc/history_event.dart';
 import 'package:tunezmusic/presentation/settingAccount/pages/setting_account.dart';
+import 'package:tunezmusic/presentation/user_music/bloc/user_music_bloc.dart';
+import 'package:tunezmusic/presentation/user_music/bloc/user_music_event.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -97,6 +99,8 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.pop(context);
+                  context.read<UserMusicBloc>().add(FetchUserMusic());
+                  context.read<NavigationBloc>().add(OpenUserMusicEvent()); 
                 },
               ),
               ListTile(

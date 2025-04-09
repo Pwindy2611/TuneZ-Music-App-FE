@@ -25,10 +25,9 @@ class ApiService {
       await _initCookieJar(); // Đảm bảo _cookieJar khởi tạo hoàn tất
 
       _dio = Dio(BaseOptions(
-        receiveTimeout: Duration(seconds: 100), // Tăng thời gian nhận phản hồi
-        connectTimeout: Duration(seconds: 60), // Thời gian kết nối tối đa
+        receiveTimeout: Duration(minutes: 5), // Tăng thời gian nhận phản hồi
+        connectTimeout: Duration(minutes: 5), // Thời gian kết nối tối đa
         baseUrl: dotenv.env['FLUTTER_PUBLIC_API_ENDPOINT'] ?? '',
-        headers: {'Content-Type': 'application/json'},
         validateStatus: (status) => status != null && status <= 500,
       ));
 
@@ -74,7 +73,10 @@ class ApiService {
       final response = await _dio.get<ResponseBody>(
         endpoint,
         options: Options(
-            responseType: ResponseType.stream), // ⚡ Nhận dữ liệu dạng stream
+            responseType: ResponseType.stream,
+            headers: {
+            'Content-Type': 'application/json',
+          },), // ⚡ Nhận dữ liệu dạng stream
       );
       return response.data;
     } catch (e) {
@@ -86,7 +88,12 @@ class ApiService {
   Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
     await ensureInitialized();
     try {
-      final response = await _dio.post(endpoint, data: jsonEncode(body));
+      final response = await _dio.post(endpoint, data: jsonEncode(body),
+      options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),);
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Error POST: $e');
@@ -98,7 +105,12 @@ class ApiService {
       String endpoint, Map<String, dynamic> body) async {
     await ensureInitialized();
     try {
-      final response = await _dio.post(endpoint, data: jsonEncode(body));
+      final response = await _dio.post(endpoint, data: jsonEncode(body),
+      options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),);
       final uri = Uri.parse(_dio.options.baseUrl);
       final cookies = await _cookieJar.loadForRequest(uri);
       await _cookieJar.saveFromResponse(uri, cookies);
@@ -140,4 +152,43 @@ class ApiService {
       throw Exception('Error DELETE: $e');
     }
   }
+
+Future<dynamic> postFormData(
+  FormData formData, 
+  String endpoint, {
+  Options? options,
+}) async {
+  await ensureInitialized();
+  try {
+    // Cấu hình Dio cho upload file lớn
+    _dio.options.connectTimeout = const Duration(minutes: 10);
+    _dio.options.receiveTimeout = const Duration(minutes: 10);
+    _dio.options.sendTimeout = const Duration(minutes: 10);
+    _dio.options.validateStatus = (status) => status != null && status < 600;
+
+    final defaultOptions = Options(
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      receiveTimeout: const Duration(minutes: 10),
+      sendTimeout: const Duration(minutes: 10),
+      validateStatus: (status) => status != null && status < 600,
+    );
+
+    final response = await _dio.post(
+      endpoint,
+      data: formData,
+      options: options ?? defaultOptions,
+      onSendProgress: (sent, total) {
+        if (total != -1) {
+          print('Upload progress: ${(sent / total * 100).toStringAsFixed(2)}%');
+        }
+      },
+    );
+    return _handleResponse(response);
+  } catch (e) {
+    print('General error: $e');
+    throw Exception('Error uploading: $e');
+  }
+}
 }

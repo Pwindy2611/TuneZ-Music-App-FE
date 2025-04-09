@@ -12,9 +12,9 @@ class PaymentInitial extends PaymentState {}
 class PaymentLoading extends PaymentState {}
 
 class PaymentSuccess extends PaymentState {
-  final String paymentUrl; // URL để chuyển hướng qua Momo
+  final String? paymentUrl; // URL để chuyển hướng qua Momo, có thể null
 
-  PaymentSuccess({required this.paymentUrl});
+  PaymentSuccess({this.paymentUrl});
 
   @override
   List<Object?> get props => [paymentUrl];
@@ -28,4 +28,13 @@ class PaymentFailure extends PaymentState {
 
   @override
   List<Object?> get props => [errorMessage];
+}
+
+class PaymentError extends PaymentState {
+  final String message;
+
+  PaymentError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

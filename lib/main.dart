@@ -25,6 +25,9 @@ import 'package:tunezmusic/presentation/premium/bloc/payment_bloc.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_bloc.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
 import 'package:tunezmusic/presentation/search/bloc/search_bloc.dart';
+import 'package:tunezmusic/presentation/upload/bloc/genres_bloc.dart';
+import 'package:tunezmusic/presentation/upload/bloc/upload_bloc.dart';
+import 'package:tunezmusic/presentation/user_music/bloc/user_music_bloc.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -73,6 +76,9 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
+        BlocProvider(create: (context) => UserMusicBloc(ApiService())),
+        BlocProvider(create: (context) => GenresBloc(ApiService())),
+        BlocProvider(create: (context) => UploadBloc(ApiService())),
         BlocProvider(create: (context) => HomePlaylistBloc(ApiService())),
         BlocProvider(create: (context) => RecentPlaylistBloc(ApiService())),
         BlocProvider(create: (context) => ArtistFollowBloc(ApiService())),

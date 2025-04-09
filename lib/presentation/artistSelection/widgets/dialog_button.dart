@@ -10,7 +10,7 @@ class ButtonBottomDialog extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: Colors.transparent,
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       child: LightAppButton(

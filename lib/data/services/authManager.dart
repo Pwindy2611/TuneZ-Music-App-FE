@@ -32,6 +32,8 @@ import 'package:tunezmusic/presentation/premium/bloc/subscriptions_bloc.dart';
 import 'package:tunezmusic/presentation/premium/bloc/subscriptions_event.dart';
 import 'package:tunezmusic/presentation/search/bloc/search_bloc.dart';
 import 'package:tunezmusic/presentation/splash/pages/splash.dart';
+import 'package:tunezmusic/presentation/user_music/bloc/user_music_bloc.dart';
+import 'package:tunezmusic/presentation/user_music/bloc/user_music_event.dart';
 
 class AuthManager {
   static final AuthManager _instance = AuthManager._internal();
@@ -71,9 +73,11 @@ void logout(BuildContext context) async {
     final paymentsBloc = context.read<PaymentBloc>();
     final artistTracksBloc = context.read<ArtistTracksBloc>();
     final searchBloc = context.read<SearchBloc>();
+    final userMusic = context.read<UserMusicBloc>();
     
     // Add ResetStateEvent to reset the state of each Bloc
     userPlaylistBloc.add(ResetHomePlaylistStateEvent());
+    userMusic.add(ResetUserMusicState());
     artistFollowBloc.add(ResetArtistFollowStateEvent());
     paymentBloc.add(ResetSubscriptionsState());
     musicLoveList.add(ResetMusicLoveListStateEvent());

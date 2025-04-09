@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunezmusic/core/configs/assets/app_images.dart';
 import 'package:tunezmusic/core/configs/theme/app_colors.dart';
+import 'package:tunezmusic/data/services/api_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tunezmusic/presentation/upload/bloc/upload_bloc.dart';
+import 'package:tunezmusic/presentation/upload/pages/upload_page.dart';
 
 class StickyHeaderLibraryDelegate extends SliverPersistentHeaderDelegate {
   final GlobalKey<ScaffoldState> _scaffoldKey;
@@ -52,17 +56,27 @@ class StickyHeaderLibraryDelegate extends SliverPersistentHeaderDelegate {
             ),
             const Spacer(),
             Row(
-              children: const [
-                Icon(
+              children: [
+                const Icon(
                   Icons.search,
                   color: Colors.white,
                   size: 30,
                 ),
-                SizedBox(width: 15),
-                Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 35,
+                const SizedBox(width: 15),
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => UploadPage(),
+                        ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 35,
+                  ),
                 ),
               ],
             )

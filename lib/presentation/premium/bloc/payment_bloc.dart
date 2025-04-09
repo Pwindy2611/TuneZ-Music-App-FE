@@ -2,21 +2,23 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:tunezmusic/data/services/api_service.dart';
 import 'payment_event.dart';
 import 'payment_state.dart';
 
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
-  ApiService apiService;
+  final ApiService apiService;
+  String? _currentItemId;
 
   PaymentBloc(this.apiService) : super(PaymentInitial()) {
     on<SelectPayment>(_onSelectSubscription);
-    on<HandlePaymentCallback>(_onHandlePaymentCallback);
+    on<CheckPaymentStatus>(_onCheckPaymentStatus);
+    on<PaymentFailed>(_onPaymentFailed);
     on<ResetPaymentStateEvent>(_onResetState);
   }
 
-
-  Future<void> _onSelectSubscription(
+    Future<void> _onSelectSubscription(
     SelectPayment event, Emitter<PaymentState> emit) async {
   emit(PaymentLoading());
   try {
@@ -61,13 +63,46 @@ Future<void> _openDeepLink(String url) async {
   }
 }
 
-  Future<void> _onHandlePaymentCallback(
-      HandlePaymentCallback event, Emitter<PaymentState> emit) async {
-    if (event.callbackData["status"] == 400) {
-      emit(PaymentFailure(errorMessage: "Thanh toán thất bại"));
-    } else {
-      emit(PaymentSuccess(paymentUrl: ""));
+  // Thêm phương thức xử lý deep link 
+  void handleDeepLink(Uri uri) {
+    if (uri.scheme == 'tunezmusic' && uri.host == 'payment-callback') {
+      final status = uri.queryParameters['status'];
+      final orderId = uri.queryParameters['orderId'];
+      
+      if (status == 'success' && orderId != null) {
+        add(CheckPaymentStatus(orderId: orderId));
+      } else {
+        add(PaymentFailed());
+      }
     }
+  }
+
+  Future<void> _onCheckPaymentStatus(
+      CheckPaymentStatus event, Emitter<PaymentState> emit) async {
+    try {
+      emit(PaymentLoading());
+      final response = await apiService.get(
+        'payments/checkPaymentStatus/${event.orderId}',
+      );
+
+      if (response?.statusCode == 200) {
+        final data = response?.data;
+        if (data['status'] == 'success') {
+          emit(PaymentSuccess(paymentUrl: ''));
+        } else {
+          emit(PaymentError('Thanh toán thất bại'));
+        }
+      } else {
+        emit(PaymentError('Kiểm tra trạng thái thanh toán thất bại'));
+      }
+    } catch (e) {
+      emit(PaymentError(e.toString()));
+    }
+  }
+
+  Future<void> _onPaymentFailed(
+      PaymentFailed event, Emitter<PaymentState> emit) async {
+    emit(PaymentError('Thanh toán thất bại'));
   }
 
   void _onResetState(ResetPaymentStateEvent event, Emitter<PaymentState> emit) {
